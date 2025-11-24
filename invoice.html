@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RemodelPRO Invoicing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* HEADER */
+    header {
+      margin-bottom: 16px;
+    }
+
+    .header-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .logo-text span {
+      color: #f97316;
+    }
+
+    /* Bigger logo: 2.5in x 2.5in */
+    .logo-img {
+      width: 2.5in;
+      height: 2.5in;
+      object-fit: contain;
+    }
+
+    /* LABELS, INPUTS, ETC */
+    label { display:block; margin-bottom:4px; font-size:0.9rem; }
+    input, select {
+      width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;
+      font-size:0.95rem; margin-bottom:10px;
+    }
+
+    .row { display:flex; flex-wrap:wrap; gap:12px; }
+    .col-6 { flex:1 1 200px; }
+
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th { background:#fafafa; text-align:left; padding:6px; }
+    td { border-bottom:1px solid #eee; padding:6px; }
+
+    .right { text-align:right; }
+
+    .btn {
+      padding:8px 14px; border:none; border-radius:999px;
+      cursor:pointer; font-size:0.9rem; margin-top:8px;
+    }
+
+    .btn-primary { background:#111827; color:#fff; }
+    .btn-secondary { background:#e5e7eb; color:#111; }
+    .btn-danger { background:#f97373; color:#111; }
+
+    .total-box { text-align:right; font-size:1.1rem; margin-top:12px; font-weight:700; }
+
+    .invoice-card {
+      border:1px solid #eee; background:#fafafa; margin-bottom:8px; padding:10px;
+      border-radius:10px; display:flex; justify-content:space-between; flex-wrap:wrap;
+      align-items: center;
+    }
+
+    .badge {
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:0.75rem;
+      margin-bottom:4px;
+      color:#fff;
+    }
+    .badge-invoice { background:#111827; }
+    .badge-estimate { background:#1d4ed8; }
+
+    .view-area {
+      margin-top:12px; border:1px dashed #ddd; border-radius:10px;
+      padding:10px; background:#f9fafb;
+    }
+
+    .view-area h3 {
+      margin-top:0;
+    }
+
+    /* PRINT LAYOUT */
+    @media print {
+      body { margin:0; padding:0; background:#fff; }
+      .app { box-shadow:none; border-radius:0; max-width:100%; padding:16px; }
+
+      /* Hide editing UI */
+      .section-builder, .section-list, .btn, #downloadPdfBtn, #emailBtn {
+        display:none !important;
+      }
+
+      /* Only show preview */
+      #viewArea { display:block !important; border:none; padding:0; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-main">
+      <div class="logo-text">
+        Remodel<span>PRO</span><br>Home Remodeling
+      </div>
+      <img src="logo.png" class="logo-img" alt="Logo">
+    </div>
+  </header>
+
+  <!-- CREATE / EDIT DOCUMENT -->
+  <section class="section-builder">
+    <div class="row">
+      <div class="col-6">
+        <label>Document Type</label>
+        <select id="docType">
+          <option value="invoice">Invoice</option>
+          <option value="estimate">Estimate</option>
+        </select>
+
+        <label>Client Name</label>
+        <input id="clientName" placeholder="e.g. Kristen">
+
+        <label>Client Email (optional)</label>
+        <input id="clientEmail" type="email">
+      </div>
+
+      <div class="col-6">
+        <label id="numberLabel">Invoice #</label>
+        <input id="invoiceNumber" placeholder="INV-001">
+
+        <label>Date</label>
+        <input id="invoiceDate" type="date">
+
+        <label>Due Date (for invoices)</label>
+        <input id="dueDate" type="date">
+      </div>
+    </div>
+
+    <h2>Line Items</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>Description</th>
+        <th class="right">Amount ($)</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+
+    <button class="btn btn-secondary" id="addItemBtn" type="button">+ Add Line</button>
+
+    <div class="total-box">
+      Total: $<span id="invoiceTotal">0.00</span>
+    </div>
+
+    <button class="btn btn-primary" id="saveInvoiceBtn" type="button">Save</button>
+    <button class="btn btn-secondary" id="newDocBtn" type="button">New Document</button>
+  </section>
+
+  <!-- SAVED LIST -->
+  <section class="section-list">
+    <h2>Saved Documents</h2>
+    <div id="invoicesList"></div>
+  </section>
+
+  <!-- PREVIEW -->
+  <section class="view-area" id="viewArea" style="display:none;">
+    <h3 id="previewTitle">Invoice Preview</h3>
+    <div id="viewContent"></div>
+    <button class="btn btn-primary" id="downloadPdfBtn" type="button">Download PDF</button>
+    <button class="btn btn-secondary" id="emailBtn" type="button">Email Document</button>
+  </section>
+
+</div>
+
+<script>
+let items = [];
+let invoices = [];
+let lastViewedInvoice = null;
+let currentEditingId = null; // null = new document, not editing
+
+const docTypeSelect = document.getElementById("docType");
+const numberLabel = document.getElementById("numberLabel");
+const numberInput = document.getElementById("invoiceNumber");
+
+function formatMoney(v){ return Number(v||0).toFixed(2); }
+
+function updateNumberLabel() {
+  const type = docTypeSelect.value;
+  numberLabel.textContent = type === "estimate" ? "Estimate #" : "Invoice #";
+  if (!currentEditingId && !numberInput.value.trim()) {
+    numberInput.placeholder = type === "estimate" ? "EST-001" : "INV-001";
+  }
+}
+
+docTypeSelect.addEventListener("change", updateNumberLabel);
+
+function recalc(){
+  const t = items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  document.getElementById("invoiceTotal").textContent = formatMoney(t);
+}
+
+function renderItems(){
+  const body = document.getElementById("itemsBody");
+  body.innerHTML="";
+  items.forEach((it, idx)=>{
+    const tr=document.createElement("tr");
+
+    tr.innerHTML = `
+      <td><input value="${it.description}" placeholder="Description"></td>
+      <td class="right"><input type="number" step="0.01" value="${it.amount}"></td>
+      <td><button class="btn btn-danger" type="button">✕</button></td>
+    `;
+
+    tr.querySelector("input").oninput = e => { items[idx].description=e.target.value; };
+    tr.querySelectorAll("input")[1].oninput = e => { items[idx].amount=e.target.value; recalc(); };
+    tr.querySelector("button").onclick = () => { items.splice(idx,1); renderItems(); recalc(); };
+
+    body.appendChild(tr);
+  });
+  recalc();
+}
+
+function addItem(){ items.push({description:"", amount:""}); renderItems(); }
+
+function resetForm() {
+  currentEditingId = null;
+  docTypeSelect.value = "invoice";
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientEmail").value = "";
+  numberInput.value = "";
+  document.getElementById("invoiceDate").value = "";
+  document.getElementById("dueDate").value = "";
+  items = [];
+  addItem();
+  document.getElementById("viewArea").style.display = "none";
+  updateNumberLabel();
+}
+
+function inferNextNumber(docType) {
+  const prefix = docType === "estimate" ? "EST-" : "INV-";
+  const key = docType === "estimate" ? "rp_next_estimate_number" : "rp_next_invoice_number";
+  let stored = localStorage.getItem(key);
+  let next;
+
+  if (stored) {
+    next = parseInt(stored, 10);
+    if (isNaN(next) || next < 1) next = 1;
+  } else {
+    // infer from existing docs
+    let max = 0;
+    invoices.forEach(inv => {
+      if ((inv.docType || "invoice") === docType && inv.invoiceNumber && inv.invoiceNumber.startsWith(prefix)) {
+        const n = parseInt(inv.invoiceNumber.slice(prefix.length), 10);
+        if (!isNaN(n) && n > max) max = n;
+      }
+    });
+    next = max + 1;
+  }
+
+  // save next+1 back
+  localStorage.setItem(key, String(next + 1));
+  return prefix + String(next).padStart(3, "0");
+}
+
+function saveInvoice(){
+  const docType = docTypeSelect.value;
+  const name=document.getElementById("clientName").value.trim();
+  let num=numberInput.value.trim();
+  const email=document.getElementById("clientEmail").value.trim();
+  const invDate=document.getElementById("invoiceDate").value;
+  const dueDate=document.getElementById("dueDate").value;
+
+  if (!name) {
+    alert("Client name is required.");
+    return;
+  }
+
+  if (!currentEditingId && !num) {
+    num = inferNextNumber(docType);
+    numberInput.value = num;
+  }
+
+  const total=items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+
+  const data={
+    id: currentEditingId || Date.now(),
+    docType,
+    clientName:name,
+    clientEmail:email,
+    invoiceNumber:num,
+    invoiceDate:invDate,
+    dueDate,
+    items:[...items],
+    total
+  };
+
+  if (currentEditingId) {
+    const idx = invoices.findIndex(i => i.id === currentEditingId);
+    if (idx !== -1) invoices[idx] = data;
+  } else {
+    invoices.push(data);
+  }
+
+  currentEditingId = data.id;
+  localStorage.setItem("rp_invoices",JSON.stringify(invoices));
+  renderList();
+  show(data.id);
+}
+
+function renderList(){
+  const list=document.getElementById("invoicesList");
+  list.innerHTML="";
+
+  if (invoices.length === 0) {
+    list.textContent = "No documents saved yet.";
+    return;
+  }
+
+  const sorted = [...invoices].sort((a,b) => b.id - a.id);
+
+  sorted.forEach(inv=>{
+    const type = inv.docType || "invoice";
+    const typeLabel = type === "estimate" ? "Estimate" : "Invoice";
+    const badgeClass = type === "estimate" ? "badge badge-estimate" : "badge badge-invoice";
+
+    const div=document.createElement("div");
+    div.className="invoice-card";
+    div.innerHTML=`
+      <div>
+        <div class="${badgeClass}">${typeLabel}</div>
+        <div><strong>${inv.clientName}</strong></div>
+        <div>${typeLabel} # ${inv.invoiceNumber}</div>
+        <div>Total: $${formatMoney(inv.total)}</div>
+      </div>
+      <div>
+        <button class="btn btn-secondary" type="button">View / Edit</button>
+        <button class="btn btn-danger" type="button">Delete</button>
+      </div>`;
+    div.querySelector(".btn-secondary").onclick = ()=>show(inv.id);
+    div.querySelector(".btn-danger").onclick = ()=>{
+      if(confirm("Delete this document?")){
+        invoices=invoices.filter(i=>i.id!==inv.id);
+        localStorage.setItem("rp_invoices",JSON.stringify(invoices));
+        renderList();
+        if (currentEditingId === inv.id) resetForm();
+      }
+    };
+    list.appendChild(div);
+  });
+}
+
+function loadIntoForm(inv) {
+  currentEditingId = inv.id;
+  docTypeSelect.value = inv.docType || "invoice";
+  document.getElementById("clientName").value = inv.clientName || "";
+  document.getElementById("clientEmail").value = inv.clientEmail || "";
+  numberInput.value = inv.invoiceNumber || "";
+  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
+  document.getElementById("dueDate").value = inv.dueDate || "";
+  items = (inv.items || []).map(i => ({ description: i.description || "", amount: i.amount || "" }));
+  if (items.length === 0) items.push({description:"", amount:""});
+  updateNumberLabel();
+  renderItems();
+}
+
+function show(id){
+  const inv=invoices.find(i=>i.id===id);
+  if (!inv) return;
+  lastViewedInvoice=inv;
+
+  loadIntoForm(inv);
+
+  const type = inv.docType || "invoice";
+  const isEstimate = type === "estimate";
+  const typeLabel = isEstimate ? "Estimate" : "Invoice";
+
+  document.getElementById("previewTitle").textContent = `${typeLabel} Preview`;
+
+  let itemsHTML="";
+  inv.items.forEach(it=>{
+    itemsHTML+=`
+      <tr>
+        <td>${it.description}</td>
+        <td class="right">$${formatMoney(it.amount)}</td>
+      </tr>`;
+  });
+
+  const disclaimer = isEstimate
+    ? "This is just an estimate and subject to change."
+    : "Payment is due on date of invoice.";
+
+  document.getElementById("viewContent").innerHTML=`
+    <div><strong>Client:</strong> ${inv.clientName}</div>
+    ${inv.clientEmail?`<div><strong>Email:</strong> ${inv.clientEmail}</div>`:""}
+    <div><strong>${typeLabel} #:</strong> ${inv.invoiceNumber}</div>
+    <div><strong>Date:</strong> ${inv.invoiceDate||"—"}</div>
+    ${!isEstimate ? `<div><strong>Due Date:</strong> ${inv.dueDate||"—"}</div>` : ""}
+    <br>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="right">Amount ($)</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHTML}</tbody>
+    </table>
+    <div style="text-align:right; font-size:1.1rem; margin-top:10px; font-weight:700;">
+      Total: $${formatMoney(inv.total)}
+    </div>
+
+    <div style="margin-top:18px; text-align:center; font-style:italic;">
+      Thank you for your business!
+    </div>
+    <div style="margin-top:6px; text-align:center; font-size:0.85rem;">
+      ${disclaimer}
+    </div>
+  `;
+
+  document.getElementById("viewArea").style.display="block";
+}
+
+function downloadPDF(){
+  if (!lastViewedInvoice) {
+    alert('Open a document in "View / Edit" first, then download.');
+    return;
+  }
+  window.print();
+}
+
+function emailDocument() {
+  if (!lastViewedInvoice) {
+    alert('Open a document in "View / Edit" first, then email.');
+    return;
+  }
+
+  const type = lastViewedInvoice.docType || "invoice";
+  const isEstimate = type === "estimate";
+  const typeLabel = isEstimate ? "Estimate" : "Invoice";
+  const num = lastViewedInvoice.invoiceNumber || "";
+  const clientName = lastViewedInvoice.clientName || "";
+  const total = formatMoney(lastViewedInvoice.total);
+  const to = lastViewedInvoice.clientEmail || "";
+
+  const subject = encodeURIComponent(`${typeLabel} ${num} from RemodelPRO`);
+
+  let bodyText = "";
+
+  if (isEstimate) {
+    bodyText =
+      `Hi ${clientName || ""},\n\n` +
+      `Please find attached your estimate from RemodelPRO.\n\n` +
+      `This estimate totals: $${total}.\n\n` +
+      `Let me know if you'd like to move forward, ask questions, or make adjustments.\n\n` +
+      `Thank you for considering RemodelPRO!\n` +
+      `RemodelPRO Home Remodeling\n\n` +
+      `Seth Riddle\n` +
+      `(801) 864-4341\n` +
+      `www.remodelproutah.com`;
+  } else {
+    bodyText =
+      `Hi ${clientName || ""},\n\n` +
+      `Please find attached your invoice from RemodelPRO.\n\n` +
+      `Amount due: $${total}\n` +
+      `Payment is due on the date listed on the invoice.\n\n` +
+      `If you have any questions or need adjustments, just let me know.\n\n` +
+      `Thank you for your business!\n` +
+      `RemodelPRO Home Remodeling\n\n` +
+      `Seth Riddle\n` +
+      `(801) 864-4341\n` +
+      `www.remodelproutah.com`;
+  }
+
+  const body = encodeURIComponent(bodyText);
+
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+
+/* Event wiring */
+document.getElementById("addItemBtn").onclick=addItem;
+document.getElementById("saveInvoiceBtn").onclick=saveInvoice;
+document.getElementById("downloadPdfBtn").onclick=downloadPDF;
+document.getElementById("newDocBtn").onclick=resetForm;
+document.getElementById("emailBtn").onclick=emailDocument;
+
+/* Init */
+items=[];
+addItem();
+invoices=JSON.parse(localStorage.getItem("rp_invoices")||"[]");
+renderList();
+updateNumberLabel();
+</script>
+
+</body>
+</html>
