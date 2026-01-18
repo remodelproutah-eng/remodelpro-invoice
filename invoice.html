@@ -2,525 +2,2308 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>RemodelPRO Invoicing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RemodelPRO Invoicing + Expenses</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 16px;
-      background: #f5f5f5;
-      color: #222;
+    body{
+      margin:0;
+      padding:16px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:#f5f5f5;
+      color:#222;
+    }
+    .app{
+      max-width:1080px;
+      margin:0 auto;
+      background:#fff;
+      padding:16px;
+      border-radius:14px;
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
     }
 
-    .app {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    .top-nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    .nav-left{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .hamburger{
+      width:44px; height:44px; border-radius:12px;
+      border:1px solid #ddd; background:#f3f4f6; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .hamburger .bars{ width:18px; height:12px; position:relative; }
+    .hamburger .bars span{
+      position:absolute; left:0; right:0; height:2px;
+      background:#111827; border-radius:2px;
+    }
+    .hamburger .bars span:nth-child(1){ top:0; }
+    .hamburger .bars span:nth-child(2){ top:5px; }
+    .hamburger .bars span:nth-child(3){ top:10px; }
+
+    .menu-wrap{ position:relative; }
+    .menu{
+      position:absolute; top:52px; left:0; width:240px;
+      background:#fff; border:1px solid #e5e7eb; border-radius:14px;
+      box-shadow:0 14px 28px rgba(0,0,0,0.12);
+      padding:8px; display:none; z-index:50;
+    }
+    .menu.open{ display:block; }
+    .menu button{
+      width:100%; text-align:left; padding:10px 12px;
+      border-radius:12px; border:1px solid transparent;
+      background:#fff; cursor:pointer; font-size:0.95rem;
+    }
+    .menu button:hover{ background:#f3f4f6; border-color:#eee; }
+    .menu .active{ background:#111827; color:#fff; }
+
+    .pill{
+      padding:6px 10px; border-radius:999px;
+      border:1px solid #eee; background:#fafafa;
+      font-size:0.85rem; color:#444; white-space:nowrap;
     }
 
-    /* HEADER */
-    header {
-      margin-bottom: 16px;
+    header{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:12px; flex-wrap:wrap; margin:0 0 8px 0;
+    }
+    .header-left{ display:flex; flex-direction:column; gap:4px; min-width:220px; }
+    .logo-text{
+      font-family:"Montserrat",system-ui,sans-serif;
+      font-size:1.7rem; font-weight:100; letter-spacing:0.02em;
+      line-height:1.7rem;
+    }
+    .logo-text span{ color:#ff9a00; font-weight:800; letter-spacing:0.08em; }
+    .sub-title{ font-size:1.05rem; font-weight:500; margin-top:2px; letter-spacing:0.02em; color:#444; line-height:1.2rem; }
+    .contact-info{ font-size:0.9rem; line-height:1.3; }
+    .contact-info strong{ font-weight:600; }
+    .logo-img{ width:2.5in; height:2.5in; object-fit:contain; }
+
+    .section-divider-top{ height:2px; background:#ff9a00; margin:10px 0 16px; border-radius:999px; }
+    .section-divider{ height:2px; background:#ff9a00; margin:20px 0 18px; border-radius:999px; }
+
+    label{ font-size:0.9rem; margin-top:6px; display:block; }
+    input,select,textarea{
+      width:100%; padding:10px 10px; font-size:1rem; margin-top:2px;
+      border:1px solid #ddd; border-radius:12px; background:#fff; outline:none;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:#c9c9c9; box-shadow:0 0 0 3px rgba(17,24,39,0.06);
+    }
+    textarea{ min-height:70px; resize:vertical; }
+
+    h2{ margin-top:18px; margin-bottom:8px; }
+    h3{ margin-top:0; margin-bottom:8px; }
+
+    .table-wrap{ width:100%; overflow-x:auto; }
+    table{
+      width:100%; border-collapse:collapse; margin-top:10px;
+      font-size:0.9rem; min-width:720px;
+    }
+    th{
+      background:#eeeeee; color:#111827; font-weight:750;
+      padding:10px 8px; text-align:left;
+      border-bottom:2px solid #ff9a00;
+      position:sticky; top:0; z-index:1;
+    }
+    td{ padding:8px; border-bottom:1px solid #eee; vertical-align:top; }
+    .right{ text-align:right; }
+    .muted{ opacity:0.75; }
+    #itemsBody tr:nth-child(even){ background:#fafafa; }
+
+    .btn{
+      margin-top:10px; padding:9px 16px; border:none; border-radius:999px;
+      cursor:pointer; font-size:0.95rem;
+    }
+    .btn-primary{ background:#111827; color:#fff; }
+    .btn-secondary{ background:#e5e7eb; color:#111; }
+    .btn-danger{ background:#f97373; color:#111; }
+    .btn-sm{ padding:6px 10px; font-size:0.85rem; margin-top:0; }
+    .btn-ghost{ background:transparent; border:1px solid #ddd; }
+
+    .total-box{ text-align:right; margin-top:12px; font-size:1.2rem; font-weight:bold; }
+
+    .card{ background:#fafafa; border:1px solid #eee; padding:12px; border-radius:14px; margin-top:10px; }
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .grid-3{ display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; align-items:end; }
+    .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+
+    .stat{ background:#fff; border:1px solid #eee; border-radius:14px; padding:12px; }
+    .stat .label{ font-size:0.82rem; color:#555; margin:0; }
+    .stat .value{ font-size:1.35rem; font-weight:800; margin:4px 0 0; }
+
+    .doc-card{
+      background:#fafafa; border:1px solid #eee;
+      padding:12px; border-radius:12px; margin-top:10px;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .doc-card-top{
+      display:flex; justify-content:space-between; align-items:center;
+      flex-wrap:wrap; gap:8px;
     }
 
-    .header-main {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
+    .badge{ display:inline-block; padding:3px 10px; border-radius:10px; font-size:0.75rem; color:#fff; }
+    .badge-invoice{ background:#111827; }
+    .badge-estimate{ background:#1d4ed8; }
+
+    .hint{ font-size:0.82rem; color:#555; margin-top:4px; }
+
+    .panel{ background:#fff; border:1px solid #eee; border-radius:14px; padding:12px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+
+    .doc-wrapper{ position:relative; padding:4px 12px 20px 0; background:#fff; }
+    .table-watermark-wrapper{ position:relative; margin-top:12px; }
+    .table-watermark-wrapper::before{
+      content:"";
+      position:absolute;
+      top:0; left:50%;
+      transform:translateX(-50%);
+      width:100%;
+      height:130%;
+      background-image:url('logo.png');
+      background-repeat:no-repeat;
+      background-position:center 35%;
+      background-size:90%;
+      opacity:0.06;
+      pointer-events:none;
+      z-index:0;
+    }
+    .table-watermark-wrapper > *{ position:relative; z-index:1; }
+
+    .drawer{ background:#fff; border:1px solid #eee; border-radius:14px; padding:12px; display:none; }
+    .drawer.open{ display:block; }
+
+    details summary{ cursor:pointer; user-select:none; list-style:none; }
+    details summary::-webkit-details-marker{ display:none; }
+
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,0.55);
+      display:none; align-items:center; justify-content:center;
+      z-index:200; padding:16px;
+    }
+    .modal-backdrop.open{ display:flex; }
+    .modal{
+      width:min(980px, 100%);
+      background:#fff; border-radius:16px; border:1px solid #eee;
+      box-shadow:0 18px 40px rgba(0,0,0,0.25);
+      padding:12px;
+    }
+    .modal-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+
+    .sig-grid{
+      display:grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap:14px;
+      margin-top:12px;
+    }
+    .sig-line{ border-bottom:1px solid #111; height:28px; margin-top:8px; }
+    .sig-label{ font-size:0.82rem; color:#111; font-weight:700; }
+
+    @media (max-width:720px){
+      body{ padding:10px; }
+      .logo-img{ width:2.2in; height:2.2in; }
+      .grid-4{ grid-template-columns:1fr 1fr; }
+      .grid-2{ grid-template-columns:1fr; }
+      .grid-3{ grid-template-columns:1fr; }
+      table{ font-size:0.88rem; }
+      .menu{ width:220px; }
+      .sig-grid{ grid-template-columns:1fr; }
     }
 
-    .logo-text {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .logo-text span {
-      color: #f97316;
-    }
-
-    /* Bigger logo: 2.5in x 2.5in */
-    .logo-img {
-      width: 2.5in;
-      height: 2.5in;
-      object-fit: contain;
-    }
-
-    /* LABELS, INPUTS, ETC */
-    label { display:block; margin-bottom:4px; font-size:0.9rem; }
-    input, select {
-      width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;
-      font-size:0.95rem; margin-bottom:10px;
-    }
-
-    .row { display:flex; flex-wrap:wrap; gap:12px; }
-    .col-6 { flex:1 1 200px; }
-
-    table { width:100%; border-collapse:collapse; margin-top:8px; }
-    th { background:#fafafa; text-align:left; padding:6px; }
-    td { border-bottom:1px solid #eee; padding:6px; }
-
-    .right { text-align:right; }
-
-    .btn {
-      padding:8px 14px; border:none; border-radius:999px;
-      cursor:pointer; font-size:0.9rem; margin-top:8px;
-    }
-
-    .btn-primary { background:#111827; color:#fff; }
-    .btn-secondary { background:#e5e7eb; color:#111; }
-    .btn-danger { background:#f97373; color:#111; }
-
-    .total-box { text-align:right; font-size:1.1rem; margin-top:12px; font-weight:700; }
-
-    .invoice-card {
-      border:1px solid #eee; background:#fafafa; margin-bottom:8px; padding:10px;
-      border-radius:10px; display:flex; justify-content:space-between; flex-wrap:wrap;
-      align-items: center;
-    }
-
-    .badge {
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      font-size:0.75rem;
-      margin-bottom:4px;
-      color:#fff;
-    }
-    .badge-invoice { background:#111827; }
-    .badge-estimate { background:#1d4ed8; }
-
-    .view-area {
-      margin-top:12px; border:1px dashed #ddd; border-radius:10px;
-      padding:10px; background:#f9fafb;
-    }
-
-    .view-area h3 {
-      margin-top:0;
-    }
-
-    /* PRINT LAYOUT */
-    @media print {
-      body { margin:0; padding:0; background:#fff; }
-      .app { box-shadow:none; border-radius:0; max-width:100%; padding:16px; }
-
-      /* Hide editing UI */
-      .section-builder, .section-list, .btn, #downloadPdfBtn, #emailBtn {
-        display:none !important;
-      }
-
-      /* Only show preview */
-      #viewArea { display:block !important; border:none; padding:0; }
-    }
+    /* NOTE: We do NOT rely on @media print to render content.
+       Printing is handled in a locked iframe (see JS) for Edge reliability. */
   </style>
 </head>
 
 <body>
-<div class="app">
-
-  <!-- HEADER -->
-  <header>
-    <div class="header-main">
-      <div class="logo-text">
-        Remodel<span>PRO</span><br>Home Remodeling
+  <div class="app">
+    <!-- TOP NAV -->
+    <div class="top-nav">
+      <div class="nav-left">
+        <div class="menu-wrap">
+          <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Menu">
+            <div class="bars"><span></span><span></span><span></span></div>
+          </button>
+          <div class="menu" id="navMenu">
+            <button type="button" data-page="clients" id="mClients">Clients</button>
+            <button type="button" data-page="invoices" id="mInvoices">Estimates / Invoices</button>
+            <button type="button" data-page="expenses" id="mExpenses">Expenses</button>
+            <button type="button" data-page="business" id="mBusiness">Business</button>
+          </div>
+        </div>
+        <div class="pill" id="pagePill">Estimates / Invoices</div>
       </div>
-      <img src="logo.png" class="logo-img" alt="Logo">
+      <div class="pill">RemodelPRO</div>
     </div>
-  </header>
 
-  <!-- CREATE / EDIT DOCUMENT -->
-  <section class="section-builder">
-    <div class="row">
-      <div class="col-6">
+    <!-- CLIENTS PAGE -->
+    <div id="clientsPage" style="display:none;">
+      <div class="row" style="margin-bottom:10px;">
+        <h2 style="margin:0;">Clients</h2>
+        <div style="min-width:260px;">
+          <label style="margin-top:0;">Search</label>
+          <input id="clientSearch" placeholder="smith, john, bath..." />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Client List</h3>
+        <div class="hint" style="margin-top:-4px;">Tap a client to expand details.</div>
+        <div id="clientsList" style="margin-top:10px;"></div>
+        <div id="clientsEmpty" class="hint" style="margin-top:10px; display:none;">No clients yet.</div>
+      </div>
+    </div>
+
+    <!-- INVOICES / ESTIMATES PAGE -->
+    <div id="invoicePage">
+      <header>
+        <div class="header-left">
+          <div class="logo-text">
+            Remodel<span>PRO</span>
+            <div class="sub-title">Home Remodeling</div>
+          </div>
+          <div class="contact-info">
+            <strong>Seth Riddle - Owner / Operator</strong><br>
+            Phone: (801) 864-4341<br>
+            Email: RemodelProUtah@gmail.com
+          </div>
+        </div>
+        <img src="logo.png" class="logo-img" alt="Logo">
+      </header>
+
+      <div class="section-divider-top"></div>
+
+      <section class="section-builder">
         <label>Document Type</label>
         <select id="docType">
-          <option value="invoice">Invoice</option>
           <option value="estimate">Estimate</option>
+          <option value="invoice">Invoice</option>
         </select>
 
-        <label>Client Name</label>
-        <input id="clientName" placeholder="e.g. Kristen">
+        <div class="grid-2" style="margin-top:8px;">
+          <div>
+            <label>Client Name</label>
+            <input id="clientName" placeholder="Client name (add a number if it is a new job later)">
+          </div>
+          <div>
+            <label id="numberLabel">Estimate #</label>
+            <input id="invoiceNumber" placeholder="EST-001">
+          </div>
+        </div>
 
-        <label>Client Email (optional)</label>
-        <input id="clientEmail" type="email">
+        <div class="grid-2">
+          <div>
+            <label>Client Phone (optional)</label>
+            <input id="clientPhone" placeholder="(801) 555-1234">
+          </div>
+          <div>
+            <label>Client Email (optional)</label>
+            <input id="clientEmail" placeholder="client@email.com">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Date</label>
+            <input id="invoiceDate" type="date">
+          </div>
+          <div>
+            <label>Due Date (Invoices only)</label>
+            <input id="dueDate" type="date">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Category Sort (Preview)</label>
+            <select id="catSortMode">
+              <option value="construction">Construction Order</option>
+              <option value="alpha">Alphabetical</option>
+            </select>
+            <div class="hint">Default is Construction Order. Discount always stays last.</div>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2>Line Items</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:160px;">Category</th>
+                <th>Description</th>
+                <th class="right" style="min-width:84px;">Qty</th>
+                <th class="right" style="min-width:130px;">Rate</th>
+                <th class="right" style="min-width:140px;">Line Total</th>
+                <th style="width:72px;"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+
+        <button class="btn btn-secondary" id="addItemBtn" type="button">Add Item</button>
+
+        <div class="total-box">Total: $<span id="invoiceTotal">0.00</span></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="saveInvoiceBtn" type="button">Save</button>
+          <button class="btn btn-secondary" id="newDocBtn" type="button">New</button>
+        </div>
+      </section>
+
+      <section class="section-list">
+        <div class="row">
+          <div>
+            <h2 style="margin:0;">Saved Documents</h2>
+            <div class="hint">Newest first.</div>
+          </div>
+          <div style="min-width:260px;">
+            <label style="margin-top:0;">Search Docs</label>
+            <input id="docSearch" placeholder="smith, est-001, invoice..." />
+          </div>
+        </div>
+
+        <div id="invoicesList"></div>
+      </section>
+    </div>
+
+    <!-- EXPENSES PAGE -->
+    <div id="expensesPage" style="display:none;">
+      <h2>Expenses</h2>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px;">Add Expense</h3>
+        <div class="hint" style="margin-top:-4px;">Manual entry or attach a receipt (gallery/camera). OCR is optional.</div>
+
+        <form id="expenseForm">
+          <div class="grid-2" style="margin-top:10px;">
+            <div>
+              <label>Attach Receipt (Gallery/Files)</label>
+              <input id="receiptFileGallery" type="file" accept="image/*" />
+            </div>
+            <div>
+              <label>Take Photo (Camera)</label>
+              <input id="receiptFileCamera" type="file" accept="image/*" capture="environment" />
+            </div>
+          </div>
+
+          <div id="receiptStatus" class="hint" style="margin-top:8px;"></div>
+
+          <div id="receiptPreviewWrap" style="margin-top:10px; display:none;">
+            <img id="receiptPreview" alt="Receipt preview" style="max-width:100%; border-radius:12px; border:1px solid #e5e5e5;" />
+          </div>
+
+          <div class="grid-2" style="margin-top:10px;">
+            <div>
+              <label>Client</label>
+              <select id="expenseClient">
+                <option value="">Select client...</option>
+              </select>
+              <div class="hint">Tip: Use the same client label you used on the estimate/invoice.</div>
+            </div>
+            <div>
+              <label>Date</label>
+              <input type="date" id="expenseDate">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Category</label>
+              <select id="expenseCategory">
+                <option value="Materials">Materials</option>
+                <option value="Labor">Labor</option>
+                <option value="Subcontractor">Subcontractor</option>
+                <option value="Dumpster">Dumpster</option>
+                <option value="Permits/Fees">Permits/Fees</option>
+                <option value="Fuel/Travel">Fuel/Travel</option>
+                <option value="Tools/Equipment">Tools/Equipment</option>
+                <option value="Other">Other</option>
+                <option value="Receipt">Receipt</option>
+              </select>
+            </div>
+            <div>
+              <label>Amount ($)</label>
+              <input type="number" step="0.01" id="expenseAmount" placeholder="0.00">
+            </div>
+          </div>
+
+          <label>Vendor / Description</label>
+          <input type="text" id="expenseDescription" placeholder="Home Depot - LVP flooring">
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button type="button" class="btn btn-secondary" id="scanReceiptBtn">Scan Receipt (OCR)</button>
+            <button type="submit" class="btn btn-primary">Save Expense</button>
+            <button type="button" class="btn btn-ghost" id="clearReceiptBtn">Clear Receipt</button>
+          </div>
+
+          <div class="hint">OCR saves extracted text for reference (browser only). You can still save without scanning.</div>
+        </form>
       </div>
 
-      <div class="col-6">
-        <label id="numberLabel">Invoice #</label>
-        <input id="invoiceNumber" placeholder="INV-001">
+      <div class="card">
+        <details id="expenseSearchDetails">
+          <summary>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div>
+                <h3 style="margin:0;">Search Expenses</h3>
+                <div class="hint" style="margin-top:2px;">Click to expand search and filters.</div>
+              </div>
+              <div class="btn btn-ghost btn-sm" style="margin-top:0;">Toggle</div>
+            </div>
+          </summary>
 
-        <label>Date</label>
-        <input id="invoiceDate" type="date">
+          <div class="grid-3" style="margin-top:10px;">
+            <div>
+              <label style="margin-top:0;">Search</label>
+              <input id="expenseSearch" placeholder="home depot, tile, fuel..." />
+            </div>
+            <div>
+              <label style="margin-top:0;">Client</label>
+              <select id="expenseFilterClient">
+                <option value="">All clients</option>
+              </select>
+            </div>
+            <div>
+              <label style="margin-top:0;">Category</label>
+              <select id="expenseFilterCategory">
+                <option value="">All categories</option>
+                <option value="Materials">Materials</option>
+                <option value="Labor">Labor</option>
+                <option value="Subcontractor">Subcontractor</option>
+                <option value="Dumpster">Dumpster</option>
+                <option value="Permits/Fees">Permits/Fees</option>
+                <option value="Fuel/Travel">Fuel/Travel</option>
+                <option value="Tools/Equipment">Tools/Equipment</option>
+                <option value="Other">Other</option>
+                <option value="Receipt">Receipt</option>
+              </select>
+            </div>
+          </div>
 
-        <label>Due Date (for invoices)</label>
-        <input id="dueDate" type="date">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button id="clearExpenseFiltersBtn" class="btn btn-secondary" type="button">Clear Filters</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px;">Expense Feed</h3>
+
+        <div class="table-wrap">
+          <table style="min-width:920px;">
+            <thead>
+              <tr>
+                <th style="min-width:110px;">Date</th>
+                <th style="min-width:220px;">Client</th>
+                <th style="min-width:140px;">Category</th>
+                <th>Vendor / Description</th>
+                <th class="right" style="min-width:120px;">Amount</th>
+                <th style="width:210px;"></th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody"></tbody>
+          </table>
+        </div>
+        <div id="expensesCount" class="hint" style="margin-top:8px;"></div>
       </div>
     </div>
 
-    <h2>Line Items</h2>
-    <table>
-      <thead>
-      <tr>
-        <th>Description</th>
-        <th class="right">Amount ($)</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody id="itemsBody"></tbody>
-    </table>
+    <!-- BUSINESS PAGE -->
+    <div id="businessPage" style="display:none;">
+      <h2>Business</h2>
 
-    <button class="btn btn-secondary" id="addItemBtn" type="button">+ Add Line</button>
-
-    <div class="total-box">
-      Total: $<span id="invoiceTotal">0.00</span>
-    </div>
-
-    <button class="btn btn-primary" id="saveInvoiceBtn" type="button">Save</button>
-    <button class="btn btn-secondary" id="newDocBtn" type="button">New Document</button>
-  </section>
-
-  <!-- SAVED LIST -->
-  <section class="section-list">
-    <h2>Saved Documents</h2>
-    <div id="invoicesList"></div>
-  </section>
-
-  <!-- PREVIEW -->
-  <section class="view-area" id="viewArea" style="display:none;">
-    <h3 id="previewTitle">Invoice Preview</h3>
-    <div id="viewContent"></div>
-    <button class="btn btn-primary" id="downloadPdfBtn" type="button">Download PDF</button>
-    <button class="btn btn-secondary" id="emailBtn" type="button">Email Document</button>
-  </section>
-
-</div>
-
-<script>
-let items = [];
-let invoices = [];
-let lastViewedInvoice = null;
-let currentEditingId = null; // null = new document, not editing
-
-const docTypeSelect = document.getElementById("docType");
-const numberLabel = document.getElementById("numberLabel");
-const numberInput = document.getElementById("invoiceNumber");
-
-function formatMoney(v){ return Number(v||0).toFixed(2); }
-
-function updateNumberLabel() {
-  const type = docTypeSelect.value;
-  numberLabel.textContent = type === "estimate" ? "Estimate #" : "Invoice #";
-  if (!currentEditingId && !numberInput.value.trim()) {
-    numberInput.placeholder = type === "estimate" ? "EST-001" : "INV-001";
-  }
-}
-
-docTypeSelect.addEventListener("change", updateNumberLabel);
-
-function recalc(){
-  const t = items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
-  document.getElementById("invoiceTotal").textContent = formatMoney(t);
-}
-
-function renderItems(){
-  const body = document.getElementById("itemsBody");
-  body.innerHTML="";
-  items.forEach((it, idx)=>{
-    const tr=document.createElement("tr");
-
-    tr.innerHTML = `
-      <td><input value="${it.description}" placeholder="Description"></td>
-      <td class="right"><input type="number" step="0.01" value="${it.amount}"></td>
-      <td><button class="btn btn-danger" type="button">✕</button></td>
-    `;
-
-    tr.querySelector("input").oninput = e => { items[idx].description=e.target.value; };
-    tr.querySelectorAll("input")[1].oninput = e => { items[idx].amount=e.target.value; recalc(); };
-    tr.querySelector("button").onclick = () => { items.splice(idx,1); renderItems(); recalc(); };
-
-    body.appendChild(tr);
-  });
-  recalc();
-}
-
-function addItem(){ items.push({description:"", amount:""}); renderItems(); }
-
-function resetForm() {
-  currentEditingId = null;
-  docTypeSelect.value = "invoice";
-  document.getElementById("clientName").value = "";
-  document.getElementById("clientEmail").value = "";
-  numberInput.value = "";
-  document.getElementById("invoiceDate").value = "";
-  document.getElementById("dueDate").value = "";
-  items = [];
-  addItem();
-  document.getElementById("viewArea").style.display = "none";
-  updateNumberLabel();
-}
-
-function inferNextNumber(docType) {
-  const prefix = docType === "estimate" ? "EST-" : "INV-";
-  const key = docType === "estimate" ? "rp_next_estimate_number" : "rp_next_invoice_number";
-  let stored = localStorage.getItem(key);
-  let next;
-
-  if (stored) {
-    next = parseInt(stored, 10);
-    if (isNaN(next) || next < 1) next = 1;
-  } else {
-    // infer from existing docs
-    let max = 0;
-    invoices.forEach(inv => {
-      if ((inv.docType || "invoice") === docType && inv.invoiceNumber && inv.invoiceNumber.startsWith(prefix)) {
-        const n = parseInt(inv.invoiceNumber.slice(prefix.length), 10);
-        if (!isNaN(n) && n > max) max = n;
-      }
-    });
-    next = max + 1;
-  }
-
-  // save next+1 back
-  localStorage.setItem(key, String(next + 1));
-  return prefix + String(next).padStart(3, "0");
-}
-
-function saveInvoice(){
-  const docType = docTypeSelect.value;
-  const name=document.getElementById("clientName").value.trim();
-  let num=numberInput.value.trim();
-  const email=document.getElementById("clientEmail").value.trim();
-  const invDate=document.getElementById("invoiceDate").value;
-  const dueDate=document.getElementById("dueDate").value;
-
-  if (!name) {
-    alert("Client name is required.");
-    return;
-  }
-
-  if (!currentEditingId && !num) {
-    num = inferNextNumber(docType);
-    numberInput.value = num;
-  }
-
-  const total=items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
-
-  const data={
-    id: currentEditingId || Date.now(),
-    docType,
-    clientName:name,
-    clientEmail:email,
-    invoiceNumber:num,
-    invoiceDate:invDate,
-    dueDate,
-    items:[...items],
-    total
-  };
-
-  if (currentEditingId) {
-    const idx = invoices.findIndex(i => i.id === currentEditingId);
-    if (idx !== -1) invoices[idx] = data;
-  } else {
-    invoices.push(data);
-  }
-
-  currentEditingId = data.id;
-  localStorage.setItem("rp_invoices",JSON.stringify(invoices));
-  renderList();
-  show(data.id);
-}
-
-function renderList(){
-  const list=document.getElementById("invoicesList");
-  list.innerHTML="";
-
-  if (invoices.length === 0) {
-    list.textContent = "No documents saved yet.";
-    return;
-  }
-
-  const sorted = [...invoices].sort((a,b) => b.id - a.id);
-
-  sorted.forEach(inv=>{
-    const type = inv.docType || "invoice";
-    const typeLabel = type === "estimate" ? "Estimate" : "Invoice";
-    const badgeClass = type === "estimate" ? "badge badge-estimate" : "badge badge-invoice";
-
-    const div=document.createElement("div");
-    div.className="invoice-card";
-    div.innerHTML=`
-      <div>
-        <div class="${badgeClass}">${typeLabel}</div>
-        <div><strong>${inv.clientName}</strong></div>
-        <div>${typeLabel} # ${inv.invoiceNumber}</div>
-        <div>Total: $${formatMoney(inv.total)}</div>
+      <div class="grid-4">
+        <div class="stat">
+          <p class="label">YTD Revenue (Invoices)</p>
+          <p class="value" id="bizYtdRevenue">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">YTD Expenses</p>
+          <p class="value" id="bizYtdExpenses">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">YTD Profit</p>
+          <p class="value" id="bizYtdProfit">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">Avg Profit %</p>
+          <p class="value" id="bizAvgProfitPct">-</p>
+        </div>
       </div>
-      <div>
-        <button class="btn btn-secondary" type="button">View / Edit</button>
-        <button class="btn btn-danger" type="button">Delete</button>
-      </div>`;
-    div.querySelector(".btn-secondary").onclick = ()=>show(inv.id);
-    div.querySelector(".btn-danger").onclick = ()=>{
-      if(confirm("Delete this document?")){
-        invoices=invoices.filter(i=>i.id!==inv.id);
-        localStorage.setItem("rp_invoices",JSON.stringify(invoices));
-        renderList();
-        if (currentEditingId === inv.id) resetForm();
-      }
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h3 style="margin:0;">Monthly Profit</h3>
+            <div class="hint">Click the chart to zoom.</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" type="button" id="bizRange6m">Last 6 months</button>
+            <button class="btn btn-secondary btn-sm" type="button" id="bizRange12m">Last 12 months</button>
+          </div>
+        </div>
+        <canvas id="monthlyProfitChart" height="160" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Expense Breakdown (Pie)</h3>
+        <div class="hint" style="margin-top:0;">Click the pie to zoom.</div>
+        <canvas id="expensePieChart" height="220" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Profit by Client (Top 8)</h3>
+        <div class="hint" style="margin-top:0;">Click the chart to zoom.</div>
+        <canvas id="profitByClientChart" height="160" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Expense Drilldown</h3>
+
+        <div class="grid-3" style="margin-top:10px;">
+          <div>
+            <label style="margin-top:0;">Category</label>
+            <select id="bizCategory">
+              <option value="">All</option>
+              <option value="Materials">Materials</option>
+              <option value="Labor">Labor</option>
+              <option value="Subcontractor">Subcontractor</option>
+              <option value="Dumpster">Dumpster</option>
+              <option value="Permits/Fees">Permits/Fees</option>
+              <option value="Fuel/Travel">Fuel/Travel</option>
+              <option value="Tools/Equipment">Tools/Equipment</option>
+              <option value="Other">Other</option>
+              <option value="Receipt">Receipt</option>
+            </select>
+          </div>
+          <div>
+            <label style="margin-top:0;">Time</label>
+            <select id="bizTime">
+              <option value="ytd">Year to date</option>
+              <option value="mtd">This month</option>
+              <option value="qtd">This quarter</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+          <div>
+            <label style="margin-top:0;">Search</label>
+            <input id="bizSearch" placeholder="home depot, tile..." />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table style="min-width:860px;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th class="right">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="bizListBody"></tbody>
+          </table>
+        </div>
+        <div id="bizListHint" class="hint" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart zoom modal -->
+  <div class="modal-backdrop" id="chartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="font-weight:800;" id="modalTitle">Chart</div>
+        <button class="btn btn-secondary btn-sm" type="button" id="closeModalBtn">Close</button>
+      </div>
+      <canvas id="modalCanvas" height="420" style="width:100%;"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <script>
+  (function(){
+    "use strict";
+
+    var LS_INVOICES = "rp_invoices";
+    var LS_EXPENSES = "rp_expenses";
+    var LS_CAT_SORT = "rp_cat_sort_mode";
+    var LS_DEFAULT_TAB = "rp_default_tab";
+    var LS_LAST_CLIENT = "rp_last_client";
+
+    var items = [];
+    var invoices = [];
+    var expenses = [];
+    var currentId = null;
+
+    var chartRangeMonths = 6;
+
+    var receiptFile = null;
+    var receiptThumb = "";
+    var receiptRawText = "";
+
+    var selectedClient = "";
+    var editingExpenseId = null;
+
+    var CATEGORIES = [
+      "Cabinetry","Carpentry","Countertops","Demo","Drywall","Electrical",
+      "Flatwork","Flooring","Framing","Haul Away","Handyman","HVAC",
+      "Installation","Painting","Plumbing","Tile","Discount"
+    ];
+
+    var CONSTRUCTION_ORDER = [
+      "Demo","Framing","Electrical","Plumbing","HVAC","Drywall","Flooring","Tile",
+      "Cabinetry","Countertops","Carpentry","Installation","Painting","Haul Away",
+      "Handyman","Flatwork","Discount"
+    ];
+
+    var CATEGORY_NOTES = {
+      "Demo": "We protect your home with dust control, careful demo, and clean disposal so the job site stays safe and livable.",
+      "Framing": "We frame square, level, and plumb and overbuild where it matters for long-term strength - no shortcuts.",
+      "Electrical": "All electrical work is code-compliant, neatly routed, and planned for real-life use (outlets, lighting, and load).",
+      "Plumbing": "Clean, reliable plumbing with proper venting and drainage and quality valves and fixtures to prevent future issues.",
+      "HVAC": "Thoughtful airflow and comfort planning with clean line routing and proper condensate management.",
+      "Drywall": "Taped and finished for smooth walls and crisp corners - ready for high-end paint and trim.",
+      "Flooring": "Proper prep and transitions so floors last: flat substrate, clean cuts, and durable install methods.",
+      "Tile": "Flat layouts, clean lines, and tight grout work with correct waterproofing where required - built to last.",
+      "Cabinetry": "Accurate layout, level installs, consistent reveals, and solid anchoring so everything looks custom.",
+      "Countertops": "Coordinated templating and installation with clean seams, proper support, and careful finish protection.",
+      "Carpentry": "Detail-focused trim and finish work - tight miters, clean caulk lines, and professional fit and finish.",
+      "Installation": "Doors, fixtures, hardware, and finish items installed cleanly with function checks and final adjustments.",
+      "Painting": "Proper prep first (patch, sand, prime) then clean cut lines and uniform coverage for a pro finish.",
+      "Haul Away": "We leave your home clean - debris removal and jobsite cleanup are part of the process.",
+      "Handyman": "Punch work and small fixes done the right way - clean, solid, and finished.",
+      "Flatwork": "Correct base prep, reinforcement when needed, and clean edges and joints for durable concrete work.",
+      "Discount": "Any discount is applied at the end to keep pricing transparent across the scope."
     };
-    list.appendChild(div);
-  });
-}
 
-function loadIntoForm(inv) {
-  currentEditingId = inv.id;
-  docTypeSelect.value = inv.docType || "invoice";
-  document.getElementById("clientName").value = inv.clientName || "";
-  document.getElementById("clientEmail").value = inv.clientEmail || "";
-  numberInput.value = inv.invoiceNumber || "";
-  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
-  document.getElementById("dueDate").value = inv.dueDate || "";
-  items = (inv.items || []).map(i => ({ description: i.description || "", amount: i.amount || "" }));
-  if (items.length === 0) items.push({description:"", amount:""});
-  updateNumberLabel();
-  renderItems();
-}
+    var ESTIMATE_DISCLAIMER =
+      "This estimate is a good-faith projection and may change if the scope of work changes, site conditions require adjustments, or additional work is added by the client.";
+    var ESTIMATE_PAYMENT_TERMS =
+      "Payment terms: 50% deposit is required to schedule and begin work. The remaining 50% balance is due upon completion of the agreed scope of work.";
+    var INVOICE_THANK_YOU =
+      "We appreciate your business. Referrals and reviews are always appreciated and help our small business grow.";
+    var INVOICE_PAYMENT_DUE =
+      "Payment is due on the invoice date unless otherwise agreed in writing.";
+    var PAYMENT_METHODS =
+      "Accepted Payment Methods: Cash, Check, Cashier's Check, Venmo, Wire Transfer, Credit/Debit Cards (5% transaction fee applies).";
 
-function show(id){
-  const inv=invoices.find(i=>i.id===id);
-  if (!inv) return;
-  lastViewedInvoice=inv;
+    function esc(str){
+      return String(str == null ? "" : str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+    function fmtMoney(v){ return Number(v || 0).toFixed(2); }
+    function isBlank(v){ return v === "" || v === null || v === undefined; }
+    function isDiscount(cat){ return String(cat || "").trim().toLowerCase() === "discount"; }
+    function parseNum(v){
+      if (isBlank(v)) return null;
+      var n = parseFloat(v);
+      return isNaN(n) ? null : n;
+    }
+    function todayISO(){
+      var d = new Date();
+      var yyyy = d.getFullYear();
+      var mm = String(d.getMonth()+1).padStart(2,"0");
+      var dd = String(d.getDate()).padStart(2,"0");
+      return yyyy + "-" + mm + "-" + dd;
+    }
+    function parseISO(s){
+      var d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    function startOfYear(d){ d = d || new Date(); return new Date(d.getFullYear(),0,1); }
+    function startOfMonth(d){ d = d || new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); }
+    function startOfQuarter(d){
+      d = d || new Date();
+      var q = Math.floor(d.getMonth()/3);
+      return new Date(d.getFullYear(), q*3, 1);
+    }
 
-  loadIntoForm(inv);
+    function computeTotals(itemsArr){
+      var total = 0;
+      var perCat = new Map();
 
-  const type = inv.docType || "invoice";
-  const isEstimate = type === "estimate";
-  const typeLabel = isEstimate ? "Estimate" : "Invoice";
+      for (var i=0; i<(itemsArr || []).length; i++){
+        var it = itemsArr[i];
+        var cat = (it.category || "").trim();
+        var qty = Math.max(0, parseFloat(it.qty || 0) || 0);
+        var rate = parseNum(it.rate);
+        if (rate === null) continue;
 
-  document.getElementById("previewTitle").textContent = `${typeLabel} Preview`;
+        var line = qty * rate;
+        if (isDiscount(cat)) line = -Math.abs(line);
 
-  let itemsHTML="";
-  inv.items.forEach(it=>{
-    itemsHTML+=`
-      <tr>
-        <td>${it.description}</td>
-        <td class="right">$${formatMoney(it.amount)}</td>
-      </tr>`;
-  });
+        total += line;
+        var key = cat || "";
+        perCat.set(key, (perCat.get(key) || 0) + line);
+      }
+      return { total: total, perCat: perCat };
+    }
 
-  const disclaimer = isEstimate
-    ? "This is just an estimate and subject to change."
-    : "Payment is due on date of invoice.";
+    function setActiveMenu(page){
+      var map = { clients:"mClients", invoices:"mInvoices", expenses:"mExpenses", business:"mBusiness" };
+      Object.keys(map).forEach(function(k){
+        var el = document.getElementById(map[k]);
+        if (el) el.classList.toggle("active", k === page);
+      });
+      var pill = document.getElementById("pagePill");
+      pill.textContent =
+        page === "clients" ? "Clients" :
+        page === "expenses" ? "Expenses" :
+        page === "business" ? "Business" :
+        "Estimates / Invoices";
+    }
 
-  document.getElementById("viewContent").innerHTML=`
-    <div><strong>Client:</strong> ${inv.clientName}</div>
-    ${inv.clientEmail?`<div><strong>Email:</strong> ${inv.clientEmail}</div>`:""}
-    <div><strong>${typeLabel} #:</strong> ${inv.invoiceNumber}</div>
-    <div><strong>Date:</strong> ${inv.invoiceDate||"—"}</div>
-    ${!isEstimate ? `<div><strong>Due Date:</strong> ${inv.dueDate||"—"}</div>` : ""}
-    <br>
-    <table>
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th class="right">Amount ($)</th>
-        </tr>
-      </thead>
-      <tbody>${itemsHTML}</tbody>
-    </table>
-    <div style="text-align:right; font-size:1.1rem; margin-top:10px; font-weight:700;">
-      Total: $${formatMoney(inv.total)}
-    </div>
+    function showPage(page){
+      var clients = document.getElementById("clientsPage");
+      var inv = document.getElementById("invoicePage");
+      var exp = document.getElementById("expensesPage");
+      var biz = document.getElementById("businessPage");
 
-    <div style="margin-top:18px; text-align:center; font-style:italic;">
-      Thank you for your business!
-    </div>
-    <div style="margin-top:6px; text-align:center; font-size:0.85rem;">
-      ${disclaimer}
-    </div>
-  `;
+      clients.style.display = (page === "clients") ? "block" : "none";
+      inv.style.display = (page === "invoices") ? "block" : "none";
+      exp.style.display = (page === "expenses") ? "block" : "none";
+      biz.style.display = (page === "business") ? "block" : "none";
 
-  document.getElementById("viewArea").style.display="block";
-}
+      localStorage.setItem(LS_DEFAULT_TAB, page);
+      setActiveMenu(page);
 
-function downloadPDF(){
-  if (!lastViewedInvoice) {
-    alert('Open a document in "View / Edit" first, then download.');
-    return;
+      if (page === "clients") renderClientsPage();
+      if (page === "expenses"){ refreshClientDropdowns(); renderExpensesTable(); }
+      if (page === "business") renderBusinessPage();
+    }
+
+    function toggleMenu(open){
+      var m = document.getElementById("navMenu");
+      if (typeof open === "boolean"){ m.classList.toggle("open", open); return; }
+      m.classList.toggle("open");
+    }
+
+    function wireNav(){
+      document.getElementById("hamburgerBtn").addEventListener("click", function(e){
+        e.stopPropagation();
+        toggleMenu();
+      });
+
+      document.getElementById("navMenu").addEventListener("click", function(e){
+        var btn = e.target.closest("button[data-page]");
+        if (!btn) return;
+        var page = btn.getAttribute("data-page");
+        toggleMenu(false);
+        showPage(page);
+      });
+
+      document.addEventListener("click", function(e){
+        var menu = document.getElementById("navMenu");
+        var wrap = document.querySelector(".menu-wrap");
+        if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove("open");
+      });
+    }
+
+    function loadAll(){
+      invoices = JSON.parse(localStorage.getItem(LS_INVOICES) || "[]");
+      expenses = JSON.parse(localStorage.getItem(LS_EXPENSES) || "[]");
+      if (!Array.isArray(invoices)) invoices = [];
+      if (!Array.isArray(expenses)) expenses = [];
+
+      var savedSort = localStorage.getItem(LS_CAT_SORT);
+      if (savedSort){
+        document.getElementById("catSortMode").value = savedSort;
+      } else {
+        document.getElementById("catSortMode").value = "construction";
+        localStorage.setItem(LS_CAT_SORT, "construction");
+      }
+
+      invoices = invoices.map(function(d){
+        var newItems = (d.items || []).map(function(it){
+          var cat = it.category || "";
+          var desc = it.description || "";
+          var qty = (it.qty !== undefined && it.qty !== null) ? it.qty : 1;
+          var rate = (it.rate !== undefined && it.rate !== null) ? it.rate : (it.amount != null ? it.amount : "");
+          return { category: cat, description: desc, qty: qty, rate: rate };
+        });
+        var copy = Object.assign({}, d);
+        copy.items = newItems;
+        return copy;
+      });
+
+      expenses = expenses.map(function(e){
+        if (e.client) return e;
+        var clientGuess = e.clientName || e.jobName || "";
+        var copy = Object.assign({}, e);
+        copy.client = clientGuess || "";
+        return copy;
+      });
+    }
+
+    function persistAll(){
+      localStorage.setItem(LS_INVOICES, JSON.stringify(invoices));
+      localStorage.setItem(LS_EXPENSES, JSON.stringify(expenses));
+      localStorage.setItem(LS_CAT_SORT, document.getElementById("catSortMode").value);
+    }
+
+    function getClientsFromData(){
+      var set = new Set();
+      invoices.forEach(function(d){ if (d.name) set.add(String(d.name).trim()); });
+      expenses.forEach(function(e){ if (e.client) set.add(String(e.client).trim()); });
+      return Array.from(set).filter(Boolean).sort(function(a,b){ return a.localeCompare(b); });
+    }
+
+    function clientTotals(client){
+      var lc = client.trim().toLowerCase();
+      var rev = invoices
+        .filter(function(d){ return String(d.type) === "invoice" && String(d.name || "").trim().toLowerCase() === lc; })
+        .reduce(function(s,d){ return s + Number(d.total || 0); }, 0);
+
+      var exp = expenses
+        .filter(function(e){ return String(e.client || "").trim().toLowerCase() === lc; })
+        .reduce(function(s,e){ return s + Number(e.amount || 0); }, 0);
+
+      return { rev: rev, exp: exp, profit: rev - exp };
+    }
+
+    function getClientDocs(client){
+      var lc = client.trim().toLowerCase();
+      return invoices
+        .filter(function(d){ return String(d.name || "").trim().toLowerCase() === lc; })
+        .slice()
+        .sort(function(a,b){ return b.id - a.id; });
+    }
+
+    function getClientExpenses(client){
+      var lc = client.trim().toLowerCase();
+      return expenses
+        .filter(function(e){ return String(e.client || "").trim().toLowerCase() === lc; })
+        .slice()
+        .sort(function(a,b){
+          var ta = (parseISO(a.date) ? parseISO(a.date).getTime() : 0);
+          var tb = (parseISO(b.date) ? parseISO(b.date).getTime() : 0);
+          return (tb - ta) || (b.id - a.id);
+        });
+    }
+
+    function renderClientsPage(){
+      var list = document.getElementById("clientsList");
+      var empty = document.getElementById("clientsEmpty");
+      var q = (document.getElementById("clientSearch").value || "").trim().toLowerCase();
+      var clients = getClientsFromData().filter(function(c){ return !q || c.toLowerCase().includes(q); });
+
+      list.innerHTML = "";
+      empty.style.display = clients.length ? "none" : "block";
+
+      clients.forEach(function(c){
+        var t = clientTotals(c);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-secondary";
+        btn.style.width = "100%";
+        btn.style.textAlign = "left";
+        btn.innerHTML =
+          "<strong>" + esc(c) + "</strong>" +
+          "<div class='hint'>Revenue: $" + fmtMoney(t.rev) +
+          " - Expenses: $" + fmtMoney(t.exp) +
+          " - Profit: $" + fmtMoney(t.profit) + "</div>";
+
+        btn.addEventListener("click", function(){
+          selectedClient = (selectedClient === c) ? "" : c;
+          renderClientsPage();
+        });
+
+        list.appendChild(btn);
+
+        if (selectedClient === c){
+          var hub = document.createElement("div");
+          hub.style.marginTop = "10px";
+          hub.style.background = "#fff";
+          hub.style.border = "1px solid #eee";
+          hub.style.borderRadius = "14px";
+          hub.style.padding = "12px";
+
+          var docs = getClientDocs(c);
+          var exps = getClientExpenses(c);
+          var latest = docs[0] || null;
+
+          var docsHTML = docs.slice(0,10).map(function(d){
+            var badge = d.type === "estimate" ? "badge badge-estimate" : "badge badge-invoice";
+            var label = d.type === "estimate" ? "Estimate" : "Invoice";
+            return (
+              "<div class='card' style='margin-top:10px;background:#fafafa;'>" +
+                "<div style='display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;'>" +
+                  "<div>" +
+                    "<div class='" + badge + "'>" + label + "</div>" +
+                    "<div><strong>" + esc(d.num || "") + "</strong></div>" +
+                    "<div class='hint'>Total: $" + fmtMoney(d.total || 0) + "</div>" +
+                  "</div>" +
+                  "<div style='display:flex;gap:8px;flex-wrap:wrap;'>" +
+                    "<button class='btn btn-secondary btn-sm' type='button' data-act='editDoc' data-id='" + d.id + "'>Edit</button>" +
+                    "<button class='btn btn-primary btn-sm' type='button' data-act='openDoc' data-id='" + d.id + "'>View</button>" +
+                  "</div>" +
+                "</div>" +
+              "</div>"
+            );
+          }).join("");
+
+          var expHTML = exps.slice(0,8).map(function(e){
+            return (
+              "<div class='card' style='margin-top:10px;background:#fafafa;'>" +
+                "<div style='display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;'>" +
+                  "<div>" +
+                    "<div><strong>" + esc(e.date || "") + "</strong> - " + esc(e.category || "") + "</div>" +
+                    "<div class='hint'>" + esc(e.description || "") + "</div>" +
+                  "</div>" +
+                  "<div style='text-align:right;font-weight:800;'>$" + fmtMoney(e.amount || 0) + "</div>" +
+                "</div>" +
+              "</div>"
+            );
+          }).join("");
+
+          hub.innerHTML =
+            "<div style='display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;'>" +
+              "<div>" +
+                "<div style='font-size:1.15rem;font-weight:800;'>" + esc(c) + "</div>" +
+                "<div class='hint'>Docs: " + docs.length + " - Expenses: " + exps.length + "</div>" +
+              "</div>" +
+              "<div style='display:flex;gap:8px;flex-wrap:wrap;'>" +
+                (latest ? "<button class='btn btn-primary btn-sm' type='button' data-act='openLatest' data-id='" + latest.id + "'>Open Latest</button>" : "") +
+                "<button class='btn btn-secondary btn-sm' type='button' data-act='goExpenses'>View Expenses</button>" +
+              "</div>" +
+            "</div>" +
+            "<div class='section-divider' style='margin:12px 0;'></div>" +
+            "<div class='card' style='background:#fff;'>" +
+              "<h3 style='margin:0 0 6px;'>Documents</h3>" +
+              (docsHTML || "<div class='hint'>No documents yet for this client.</div>") +
+            "</div>" +
+            "<div class='card' style='background:#fff;'>" +
+              "<h3 style='margin:0 0 6px;'>Recent Expenses</h3>" +
+              (expHTML || "<div class='hint'>No expenses yet for this client.</div>") +
+            "</div>";
+
+          list.appendChild(hub);
+
+          hub.querySelectorAll("[data-act='editDoc']").forEach(function(b){
+            b.addEventListener("click", function(){
+              var id = Number(b.getAttribute("data-id"));
+              loadDocIntoForm(id);
+              showPage("invoices");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+          });
+
+          hub.querySelectorAll("[data-act='openDoc']").forEach(function(b){
+            b.addEventListener("click", function(){
+              var id = Number(b.getAttribute("data-id"));
+              openDrawerForDoc(id);
+              showPage("invoices");
+              setTimeout(function(){
+                var el = document.getElementById("docCard_" + id);
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 50);
+            });
+          });
+
+          var goExpenses = hub.querySelector("[data-act='goExpenses']");
+          if (goExpenses){
+            goExpenses.addEventListener("click", function(){
+              showPage("expenses");
+              document.getElementById("expenseFilterClient").value = c;
+              document.getElementById("expenseSearchDetails").open = true;
+              renderExpensesTable();
+            });
+          }
+
+          var openLatest = hub.querySelector("[data-act='openLatest']");
+          if (openLatest){
+            openLatest.addEventListener("click", function(){
+              var id = Number(openLatest.getAttribute("data-id"));
+              loadDocIntoForm(id);
+              showPage("invoices");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+          }
+        }
+      });
+    }
+
+    function updateNumberLabel(){
+      var type = document.getElementById("docType").value;
+      document.getElementById("numberLabel").textContent = (type === "estimate") ? "Estimate #" : "Invoice #";
+      if (!currentId){
+        document.getElementById("invoiceNumber").placeholder = (type === "estimate") ? "EST-001" : "INV-001";
+      }
+      var due = document.getElementById("dueDate");
+      if (type === "estimate"){
+        due.disabled = true;
+        due.style.opacity = 0.6;
+        due.value = "";
+      } else {
+        due.disabled = false;
+        due.style.opacity = 1;
+      }
+    }
+
+    function nextNumber(type){
+      var key = (type === "estimate") ? "next_est" : "next_inv";
+      var n = parseInt(localStorage.getItem(key) || "1", 10);
+      localStorage.setItem(key, String(n + 1));
+      return (type === "estimate" ? "EST-" : "INV-") + String(n).padStart(3, "0");
+    }
+
+    function addItem(){
+      items.push({ category:"", description:"", qty:1, rate:"" });
+      renderItems();
+    }
+
+    /* =========================
+       LINE ITEMS (KEYPAD FIX)
+       - NO re-render on each keystroke
+       ========================= */
+    function renderItems(){
+      var body = document.getElementById("itemsBody");
+      body.innerHTML = "";
+
+      items.forEach(function(it, i){
+        var tr = document.createElement("tr");
+
+        var options = "<option value=''></option>" +
+          CATEGORIES.map(function(cat){
+            return "<option value='" + cat + "'" + (it.category === cat ? " selected" : "") + ">" + cat + "</option>";
+          }).join("");
+
+        var qtyVal = (it.qty === "" || it.qty === null || it.qty === undefined) ? 1 : it.qty;
+
+        tr.innerHTML =
+          "<td><select>" + options + "</select></td>" +
+          "<td><input value='" + esc(it.description || "") + "'></td>" +
+          "<td class='right'><input style='max-width:90px' type='number' step='1' min='0' value='" + esc(qtyVal) + "'></td>" +
+          "<td class='right'><input inputmode='decimal' type='number' step='0.01' value='" + esc(it.rate == null ? "" : it.rate) + "'></td>" +
+          "<td class='right' data-line='1'>TBD</td>" +
+          "<td><button type='button' class='btn btn-danger btn-sm'>X</button></td>";
+
+        var sel = tr.children[0].querySelector("select");
+        var descInput = tr.children[1].querySelector("input");
+        var qtyInput = tr.children[2].querySelector("input");
+        var rateInput = tr.children[3].querySelector("input");
+        var lineTd = tr.querySelector("[data-line]");
+
+        function updateLineAndTotal(){
+          var qn = Math.max(0, parseFloat(items[i].qty || 0) || 0);
+          var rn = parseNum(items[i].rate);
+          var line = (rn === null) ? null : (qn * rn);
+          if (line !== null && isDiscount(items[i].category)) line = -Math.abs(line);
+          lineTd.textContent = (line === null) ? "TBD" : ("$" + fmtMoney(line));
+          recalc();
+        }
+
+        sel.addEventListener("change", function(e){
+          items[i].category = e.target.value;
+          updateLineAndTotal();
+        });
+
+        descInput.addEventListener("input", function(e){
+          items[i].description = e.target.value;
+        });
+
+        qtyInput.addEventListener("input", function(e){
+          items[i].qty = e.target.value;
+          updateLineAndTotal();
+        });
+
+        rateInput.addEventListener("input", function(e){
+          items[i].rate = e.target.value;
+          updateLineAndTotal();
+        });
+
+        tr.children[5].querySelector("button").addEventListener("click", function(){
+          items.splice(i, 1);
+          if (items.length === 0) items.push({ category:"", description:"", qty:1, rate:"" });
+          renderItems();
+        });
+
+        body.appendChild(tr);
+        updateLineAndTotal();
+      });
+
+      recalc();
+    }
+
+    function recalc(){
+      var t = computeTotals(items).total;
+      document.getElementById("invoiceTotal").textContent = fmtMoney(t);
+    }
+
+    function saveDoc(){
+      var type = document.getElementById("docType").value;
+      var name = document.getElementById("clientName").value.trim();
+      var num = document.getElementById("invoiceNumber").value.trim();
+      var phone = document.getElementById("clientPhone").value.trim();
+      var email = document.getElementById("clientEmail").value.trim();
+      var date = document.getElementById("invoiceDate").value;
+      var due = document.getElementById("dueDate").value;
+
+      if (!name) return alert("Client name required.");
+
+      if (!num){
+        num = nextNumber(type);
+        document.getElementById("invoiceNumber").value = num;
+      }
+
+      var total = computeTotals(items).total;
+
+      var data = {
+        id: currentId || Date.now(),
+        type: type,
+        name: name,
+        phone: phone || "",
+        email: email || "",
+        num: num,
+        date: date,
+        due: (type === "invoice" ? (due || "") : ""),
+        total: total,
+        items: items.map(function(it){
+          return {
+            category: it.category || "",
+            description: it.description || "",
+            qty: (it.qty == null ? 1 : it.qty),
+            rate: (it.rate == null ? "" : it.rate)
+          };
+        })
+      };
+
+      if (currentId){
+        var idx = invoices.findIndex(function(d){ return d.id === currentId; });
+        if (idx !== -1) invoices[idx] = data;
+      } else {
+        invoices.push(data);
+      }
+
+      currentId = data.id;
+
+      localStorage.setItem(LS_LAST_CLIENT, name);
+      persistAll();
+      renderDocList();
+      renderClientsPage();
+      renderBusinessPage();
+      refreshClientDropdowns();
+
+      openDrawerForDoc(data.id);
+    }
+
+    function loadDocIntoForm(id){
+      var d = invoices.find(function(x){ return x.id === id; });
+      if (!d) return;
+
+      currentId = d.id;
+
+      document.getElementById("docType").value = d.type;
+      document.getElementById("clientName").value = d.name || "";
+      document.getElementById("clientPhone").value = d.phone || "";
+      document.getElementById("clientEmail").value = d.email || "";
+      document.getElementById("invoiceNumber").value = d.num || "";
+      document.getElementById("invoiceDate").value = d.date || "";
+      document.getElementById("dueDate").value = d.due || "";
+
+      items = (d.items || []).map(function(it){
+        return {
+          category: it.category || "",
+          description: it.description || "",
+          qty: (it.qty !== undefined && it.qty !== null) ? it.qty : 1,
+          rate: (it.rate !== undefined && it.rate !== null) ? it.rate : (it.amount != null ? it.amount : "")
+        };
+      });
+      if (items.length === 0) items.push({ category:"", description:"", qty:1, rate:"" });
+
+      updateNumberLabel();
+      renderItems();
+    }
+
+    function getCategoryOrder(keys){
+      var sortMode = document.getElementById("catSortMode").value || "construction";
+      var hasDiscount = keys.some(function(k){ return isDiscount(k); });
+      var nonDiscount = keys.filter(function(k){ return !isDiscount(k); });
+
+      if (sortMode === "alpha"){
+        nonDiscount.sort(function(a,b){ return String(a||"").localeCompare(String(b||"")); });
+      } else {
+        var idx = new Map(CONSTRUCTION_ORDER.map(function(c,i){ return [c.toLowerCase(), i]; }));
+        nonDiscount.sort(function(a,b){
+          var ia = idx.has(String(a||"").toLowerCase()) ? idx.get(String(a||"").toLowerCase()) : 999;
+          var ib = idx.has(String(b||"").toLowerCase()) ? idx.get(String(b||"").toLowerCase()) : 999;
+          if (ia !== ib) return ia - ib;
+          return String(a||"").localeCompare(String(b||""));
+        });
+      }
+      if (hasDiscount){
+        var disc = keys.find(function(k){ return isDiscount(k); });
+        nonDiscount.push(disc);
+      }
+      return nonDiscount;
+    }
+
+    function buildPrintHeaderHTML(){
+      return ""
+        + "<header style='display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px 0;'>"
+        +   "<div style='display:flex;flex-direction:column;gap:4px;min-width:220px;'>"
+        +     "<div style=\"font-family:'Montserrat',system-ui,sans-serif;font-size:1.7rem;font-weight:100;letter-spacing:0.02em;line-height:1.7rem;\">"
+        +       "Remodel<span style='color:#ff9a00;font-weight:800;letter-spacing:0.08em;'>PRO</span>"
+        +       "<div style='font-size:1.05rem;font-weight:500;margin-top:2px;letter-spacing:0.02em;color:#444;line-height:1.2rem;'>Home Remodeling</div>"
+        +     "</div>"
+        +     "<div style='font-size:0.9rem;line-height:1.3;'>"
+        +       "<strong>Seth Riddle - Owner / Operator</strong><br>"
+        +       "Phone: (801) 864-4341<br>"
+        +       "Email: RemodelProUtah@gmail.com"
+        +     "</div>"
+        +   "</div>"
+        +   "<img src='logo.png' alt='Logo' style='width:2.5in;height:2.5in;object-fit:contain;'>"
+        + "</header>"
+        + "<div style='height:2px;background:#ff9a00;margin:10px 0 16px;border-radius:999px;'></div>";
+    }
+
+    function buildDocPreviewHTML(d){
+      var typeName = (d.type === "estimate") ? "Estimate" : "Invoice";
+
+      var srcItems = (d.items || []).map(function(it){
+        return {
+          category: (it.category || "").trim(),
+          description: it.description || "",
+          qty: (it.qty !== undefined && it.qty !== null) ? it.qty : 1,
+          rate: (it.rate !== undefined && it.rate !== null) ? it.rate : (it.amount != null ? it.amount : "")
+        };
+      });
+
+      var groups = new Map();
+      var seen = [];
+      srcItems.forEach(function(it){
+        var cat = it.category || "";
+        if (!groups.has(cat)){ groups.set(cat, []); seen.push(cat); }
+        groups.get(cat).push(it);
+      });
+
+      var cats = getCategoryOrder(seen);
+      var totals = computeTotals(srcItems);
+      var total = totals.total;
+      var perCat = totals.perCat;
+
+      var rows = "";
+      cats.forEach(function(cat){
+        var arr = groups.get(cat) || [];
+        if (cat){
+          rows += "<tr><td colspan='5' style='background:#eeeeee;font-weight:800;'>" + esc(cat) + "</td></tr>";
+        }
+
+        arr.forEach(function(it){
+          var qty = Math.max(0, parseFloat(it.qty || 0) || 0);
+          var rate = parseNum(it.rate);
+          var line = (rate === null) ? null : (qty * rate);
+          if (line !== null && isDiscount(cat)) line = -Math.abs(line);
+
+          rows += ""
+            + "<tr>"
+            +   "<td style='width:22%;'>" + esc(cat || "") + "</td>"
+            +   "<td>" + esc(it.description || "") + "</td>"
+            +   "<td class='right' style='width:10%;'>" + esc(qty) + "</td>"
+            +   "<td class='right' style='width:16%;'>" + (rate === null ? "TBD" : ("$" + fmtMoney(rate))) + "</td>"
+            +   "<td class='right' style='width:18%;'>" + (line === null ? "TBD" : ("$" + fmtMoney(line))) + "</td>"
+            + "</tr>";
+        });
+
+        if (cat && arr.length > 1){
+          var sub = perCat.get(cat || "") || 0;
+          rows += ""
+            + "<tr>"
+            +   "<td colspan='3' style='background:#f7f7f7;'></td>"
+            +   "<td class='right' style='font-weight:700;background:#f7f7f7;white-space:nowrap;'>" + esc(cat) + " Subtotal</td>"
+            +   "<td class='right' style='font-weight:700;background:#f7f7f7;'>$" + fmtMoney(sub) + "</td>"
+            + "</tr>";
+        }
+      });
+
+      var estimateExtra = "";
+      if (d.type === "estimate"){
+        var presentCats = cats.filter(function(c){ return c && String(c).trim(); });
+        var qualityBullets = presentCats
+          .filter(function(c){ return !!CATEGORY_NOTES[c]; })
+          .map(function(c){
+            return "<li><strong>" + esc(c) + ":</strong> " + esc(CATEGORY_NOTES[c]) + "</li>";
+          }).join("");
+
+        estimateExtra = ""
+          + "<div class='card' style='background:#fff; margin-top:12px;'>"
+          +   "<h3 style='margin:0 0 6px;'>Scope of Work</h3>"
+          +   "<div class='hint' style='margin-top:0;'>All labor, materials, and details are described in the line items above. Any additional work not listed may be treated as a change order.</div>"
+          +   (qualityBullets
+                ? ("<div style='margin-top:10px;'><div style='font-weight:800; margin-bottom:6px;'>Quality Notes by Trade</div><ul style='margin:0; padding-left:18px; line-height:1.35;'>" + qualityBullets + "</ul></div>")
+                : "")
+          +   "<div style='margin-top:12px; padding:10px; border:1px solid #eee; border-radius:12px; background:#fafafa;'>"
+          +     "<div style='font-weight:800; margin-bottom:6px;'>Important</div>"
+          +     "<div class='hint' style='margin-top:0;'>" + esc(ESTIMATE_DISCLAIMER) + "</div>"
+          +     "<div class='hint' style='margin-top:8px;'>" + esc(ESTIMATE_PAYMENT_TERMS) + "</div>"
+          +   "</div>"
+          + "</div>";
+      }
+
+      var invoiceExtra = "";
+      if (d.type === "invoice"){
+        invoiceExtra = ""
+          + "<div class='card' style='background:#fff; margin-top:12px;'>"
+          +   "<h3 style='margin:0 0 6px;'>Thank you</h3>"
+          +   "<div class='hint' style='margin-top:0;'>" + esc(INVOICE_THANK_YOU) + "</div>"
+          +   "<div class='hint' style='margin-top:8px;'>" + esc(INVOICE_PAYMENT_DUE) + "</div>"
+          + "</div>";
+      }
+
+      var bottomTotal = ""
+        + "<div class='card' style='background:#fff; margin-top:12px;'>"
+        +   "<div style='display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;'>"
+        +     "<div style='font-weight:800;'>Total</div>"
+        +     "<div style='font-size:1.25rem;font-weight:900;'>$" + fmtMoney(total) + "</div>"
+        +   "</div>"
+        +   "<div class='hint' style='margin-top:6px;'>" + esc(PAYMENT_METHODS) + "</div>"
+        + "</div>";
+
+      var signatures = ""
+        + "<div class='card' style='background:#fff; margin-top:12px;'>"
+        +   "<div style='font-weight:900;margin-bottom:6px;'>Client Authorization</div>"
+        +   "<div class='hint' style='margin-top:0;'>By signing below, client acknowledges and accepts this " + esc(typeName.toLowerCase()) + " and its terms.</div>"
+        +   "<div class='sig-grid'>"
+        +     "<div>"
+        +       "<div class='sig-label'>Client Signature</div>"
+        +       "<div class='sig-line'></div>"
+        +     "</div>"
+        +     "<div>"
+        +       "<div class='sig-label'>Date</div>"
+        +       "<div class='sig-line'></div>"
+        +     "</div>"
+        +   "</div>"
+        + "</div>";
+
+      return ""
+        + "<div class='doc-wrapper'>"
+        +   "<div style='display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;'>"
+        +     "<div>"
+        +       "<div style='font-size:1.4rem;font-weight:700;margin-bottom:4px;'>" + esc(typeName) + ": " + esc(d.num || "") + "</div>"
+        +       "<div class='muted'>" + esc(d.name || "") + "</div>"
+        +       "<div class='muted'>Date: " + esc(d.date || "") + "</div>"
+        +       (d.type === "invoice" ? ("<div class='muted'>Due: " + esc(d.due || "") + "</div>") : "")
+        +     "</div>"
+        +     "<div style='text-align:right;'>"
+        +       "<div style='font-size:1.25rem;font-weight:800;'>Total: $" + fmtMoney(total) + "</div>"
+        +     "</div>"
+        +   "</div>"
+        +   "<div class='table-watermark-wrapper'>"
+        +     "<div class='table-wrap'>"
+        +       "<table class='preview-table' style='min-width:760px;'>"
+        +         "<thead>"
+        +           "<tr>"
+        +             "<th style='min-width:160px;'>Category</th>"
+        +             "<th>Description</th>"
+        +             "<th class='right' style='min-width:84px;'>Qty</th>"
+        +             "<th class='right' style='min-width:130px;'>Rate</th>"
+        +             "<th class='right' style='min-width:140px;'>Line Total</th>"
+        +           "</tr>"
+        +         "</thead>"
+        +         "<tbody>" + rows + "</tbody>"
+        +       "</table>"
+        +     "</div>"
+        +   "</div>"
+        +   (d.type === "estimate" ? estimateExtra : "")
+        +   (d.type === "invoice" ? invoiceExtra : "")
+        +   bottomTotal
+        +   signatures
+        +   "<div class='hint' style='margin-top:10px;'>Questions? Call/Text (801) 864-4341 - RemodelProUtah@gmail.com</div>"
+        + "</div>";
+    }
+
+    function renderDocList(){
+      var list = document.getElementById("invoicesList");
+      var q = (document.getElementById("docSearch").value || "").trim().toLowerCase();
+      list.innerHTML = "";
+
+      var sorted = invoices
+        .slice()
+        .sort(function(a,b){ return b.id - a.id; })
+        .filter(function(d){
+          if (!q) return true;
+          return (
+            String(d.name||"").toLowerCase().includes(q) ||
+            String(d.num||"").toLowerCase().includes(q) ||
+            String(d.type||"").toLowerCase().includes(q)
+          );
+        });
+
+      sorted.forEach(function(d){
+        var badge = (d.type === "estimate") ? "badge badge-estimate" : "badge badge-invoice";
+        var label = (d.type === "estimate") ? "Estimate" : "Invoice";
+
+        var card = document.createElement("div");
+        card.className = "doc-card";
+        card.id = "docCard_" + d.id;
+
+        card.innerHTML =
+          "<div class='doc-card-top'>" +
+            "<div>" +
+              "<div class='" + badge + "'>" + label + "</div>" +
+              "<div><strong>" + esc(d.name || "") + "</strong></div>" +
+              "<div>" + esc(d.num || "") + "</div>" +
+              "<div class='muted'>Total: $" + fmtMoney(d.total || 0) + "</div>" +
+            "</div>" +
+            "<div style='display:flex; gap:8px; flex-wrap:wrap; align-items:center;'>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='toggle' data-id='" + d.id + "'>View/Hide</button>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='edit' data-id='" + d.id + "'>Edit</button>" +
+              "<button class='btn btn-danger btn-sm' type='button' data-action='del' data-id='" + d.id + "'>Delete</button>" +
+            "</div>" +
+          "</div>" +
+          "<div class='drawer' id='drawer_" + d.id + "'>" +
+            "<div class='drawer-actions' style='display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:8px;'>" +
+              "<button class='btn btn-primary btn-sm' type='button' data-action='print' data-id='" + d.id + "'>Print / Save PDF</button>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='email' data-id='" + d.id + "'>Email</button>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='text' data-id='" + d.id + "'>Text</button>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='follow' data-id='" + d.id + "'>Follow-up Text</button>" +
+            "</div>" +
+            "<div id='drawerPreview_" + d.id + "'></div>" +
+          "</div>";
+
+        card.querySelector("[data-action='toggle']").addEventListener("click", function(){ toggleDrawer(d.id); });
+
+        card.querySelector("[data-action='edit']").addEventListener("click", function(){
+          loadDocIntoForm(d.id);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        card.querySelector("[data-action='del']").addEventListener("click", function(){
+          if (!confirm("Delete this document?")) return;
+          invoices = invoices.filter(function(x){ return x.id !== d.id; });
+          if (currentId === d.id) currentId = null;
+          persistAll();
+          renderDocList();
+          renderClientsPage();
+          renderBusinessPage();
+          refreshClientDropdowns();
+        });
+
+        card.querySelector("[data-action='print']").addEventListener("click", function(){ printDocLocked(d.id); });
+        card.querySelector("[data-action='email']").addEventListener("click", function(){ emailDoc(d.id); });
+        card.querySelector("[data-action='text']").addEventListener("click", function(){ textDoc(d.id, false); });
+        card.querySelector("[data-action='follow']").addEventListener("click", function(){ textDoc(d.id, true); });
+
+        list.appendChild(card);
+      });
+    }
+
+    function toggleDrawer(id){
+      var drawer = document.getElementById("drawer_" + id);
+      var open = !drawer.classList.contains("open");
+      if (open){
+        document.querySelectorAll(".drawer.open").forEach(function(d){ d.classList.remove("open"); });
+        drawer.classList.add("open");
+        var doc = invoices.find(function(x){ return x.id === id; });
+        document.getElementById("drawerPreview_" + id).innerHTML = buildDocPreviewHTML(doc);
+      } else {
+        drawer.classList.remove("open");
+      }
+    }
+
+    function openDrawerForDoc(id){
+      var drawer = document.getElementById("drawer_" + id);
+      if (!drawer) return;
+      document.querySelectorAll(".drawer.open").forEach(function(d){ d.classList.remove("open"); });
+      drawer.classList.add("open");
+      var doc = invoices.find(function(x){ return x.id === id; });
+      document.getElementById("drawerPreview_" + id).innerHTML = buildDocPreviewHTML(doc);
+    }
+
+    function emailDoc(id){
+      var d = invoices.find(function(x){ return x.id === id; });
+      if (!d) return;
+
+      var subject = encodeURIComponent((d.type === "estimate" ? "Estimate " : "Invoice ") + (d.num || ""));
+      var body =
+        "Hi " + (d.name || "") + ",\n\n" +
+        "Attached is your " + (d.type === "estimate" ? "estimate" : "invoice") + " from RemodelPRO.\n\n" +
+        "Thank you,\nSeth Riddle\n(801) 864-4341\nRemodelProUtah@gmail.com\n";
+
+      var href = "mailto:" + encodeURIComponent(d.email || "") + "?subject=" + subject + "&body=" + encodeURIComponent(body);
+      window.location.href = href;
+    }
+
+    function textDoc(id, followUp){
+      var d = invoices.find(function(x){ return x.id === id; });
+      if (!d) return;
+
+      var msg = followUp
+        ? ("Hi " + (d.name || "") + ", just following up on " + (d.type === "estimate" ? "the estimate" : "the invoice") + " " + (d.num || "") + ". Let me know if you have any questions. - RemodelPRO")
+        : ("Hi " + (d.name || "") + ", here is your " + (d.type === "estimate" ? "estimate" : "invoice") + " " + (d.num || "") + " from RemodelPRO. - Seth");
+
+      var phone = (d.phone || "").replace(/[^\d+]/g, "");
+      var href = "sms:" + encodeURIComponent(phone) + "?body=" + encodeURIComponent(msg);
+      window.location.href = href;
+    }
+/* ==========================================================
+   PRINT LOCK (DOM BUILT) - DO NOT EDIT
+   - No doc.write()
+   - Uses <base href> so logo.png loads
+   - Waits for images then prints
+   ========================================================== */
+
+function _printDocLockedInternal(d){
+  var baseHref = document.baseURI;
+  var htmlBody = buildPrintHeaderHTML() + buildDocPreviewHTML(d);
+
+  var printCss = ""
+    + "*{box-sizing:border-box;}"
+    + "body{margin:0;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#222;"
+    + "-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}"
+    + ".table-wrap{width:100%;overflow-x:auto;}"
+    + "table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.9rem;min-width:720px;}"
+    + "th{background:#eeeeee;color:#111827;font-weight:750;padding:10px 8px;text-align:left;border-bottom:2px solid #ff9a00;}"
+    + "td{padding:8px;border-bottom:1px solid #eee;vertical-align:top;}"
+    + ".right{text-align:right;}"
+    + ".muted{opacity:0.75;}"
+    + ".card{background:#fafafa;border:1px solid #eee;padding:12px;border-radius:14px;margin-top:10px;}"
+    + ".doc-wrapper{background:#fff;}"
+    + ".sig-grid{display:grid;grid-template-columns:1.4fr 0.8fr;gap:14px;margin-top:12px;}"
+    + ".sig-line{border-bottom:1px solid #111;height:28px;margin-top:8px;}"
+    + ".sig-label{font-size:0.82rem;color:#111;font-weight:700;}"
+    + ".table-watermark-wrapper:before{display:none !important;}" /* prevents Edge blank PDF */
+    + "@media print{body{padding:0;}table,thead,tbody,tr,td,th{page-break-inside:avoid;}}";
+
+  var iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+
+  var win = iframe.contentWindow;
+  var doc = win.document;
+
+  // Build the print document using DOM (no doc.write)
+  doc.open();
+  doc.close();
+
+  // <head>
+  var head = doc.head;
+
+  var meta1 = doc.createElement("meta");
+  meta1.setAttribute("charset", "UTF-8");
+  head.appendChild(meta1);
+
+  var meta2 = doc.createElement("meta");
+  meta2.setAttribute("name", "viewport");
+  meta2.setAttribute("content", "width=device-width, initial-scale=1");
+  head.appendChild(meta2);
+
+  var base = doc.createElement("base");
+  base.setAttribute("href", baseHref);
+  head.appendChild(base);
+
+  var link1 = doc.createElement("link");
+  link1.setAttribute("rel", "preconnect");
+  link1.setAttribute("href", "https://fonts.googleapis.com");
+  head.appendChild(link1);
+
+  var link2 = doc.createElement("link");
+  link2.setAttribute("rel", "preconnect");
+  link2.setAttribute("href", "https://fonts.gstatic.com");
+  link2.setAttribute("crossorigin", "");
+  head.appendChild(link2);
+
+  var font = doc.createElement("link");
+  font.setAttribute("rel", "stylesheet");
+  font.setAttribute("href", "https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap");
+  head.appendChild(font);
+
+  var style = doc.createElement("style");
+  style.textContent = printCss;
+  head.appendChild(style);
+
+  // <body>
+  doc.body.innerHTML = htmlBody;
+
+  function cleanup(){
+    try { document.body.removeChild(iframe); } catch(e) {}
   }
-  window.print();
-}
 
-function emailDocument() {
-  if (!lastViewedInvoice) {
-    alert('Open a document in "View / Edit" first, then email.');
-    return;
+  function doPrint(){
+    try{
+      win.focus();
+      win.print();
+    } finally {
+      setTimeout(cleanup, 1500);
+    }
   }
 
-  const type = lastViewedInvoice.docType || "invoice";
-  const isEstimate = type === "estimate";
-  const typeLabel = isEstimate ? "Estimate" : "Invoice";
-  const num = lastViewedInvoice.invoiceNumber || "";
-  const clientName = lastViewedInvoice.clientName || "";
-  const total = formatMoney(lastViewedInvoice.total);
-  const to = lastViewedInvoice.clientEmail || "";
-
-  const subject = encodeURIComponent(`${typeLabel} ${num} from RemodelPRO`);
-
-  let bodyText = "";
-
-  if (isEstimate) {
-    bodyText =
-      `Hi ${clientName || ""},\n\n` +
-      `Please find attached your estimate from RemodelPRO.\n\n` +
-      `This estimate totals: $${total}.\n\n` +
-      `Let me know if you'd like to move forward, ask questions, or make adjustments.\n\n` +
-      `Thank you for considering RemodelPRO!\n` +
-      `RemodelPRO Home Remodeling\n\n` +
-      `Seth Riddle\n` +
-      `(801) 864-4341\n` +
-      `www.remodelproutah.com`;
+  // Wait for images (logo) to load
+  var imgs = doc.images ? Array.prototype.slice.call(doc.images) : [];
+  if (imgs.length){
+    var done = 0;
+    function finish(){
+      done++;
+      if (done >= imgs.length) setTimeout(doPrint, 150);
+    }
+    imgs.forEach(function(img){
+      if (img.complete) finish();
+      else { img.onload = finish; img.onerror = finish; }
+    });
   } else {
-    bodyText =
-      `Hi ${clientName || ""},\n\n` +
-      `Please find attached your invoice from RemodelPRO.\n\n` +
-      `Amount due: $${total}\n` +
-      `Payment is due on the date listed on the invoice.\n\n` +
-      `If you have any questions or need adjustments, just let me know.\n\n` +
-      `Thank you for your business!\n` +
-      `RemodelPRO Home Remodeling\n\n` +
-      `Seth Riddle\n` +
-      `(801) 864-4341\n` +
-      `www.remodelproutah.com`;
+    setTimeout(doPrint, 250);
   }
-
-  const body = encodeURIComponent(bodyText);
-
-  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
-/* Event wiring */
-document.getElementById("addItemBtn").onclick=addItem;
-document.getElementById("saveInvoiceBtn").onclick=saveInvoice;
-document.getElementById("downloadPdfBtn").onclick=downloadPDF;
-document.getElementById("newDocBtn").onclick=resetForm;
-document.getElementById("emailBtn").onclick=emailDocument;
+function printDocLocked(id){
+  var d = invoices.find(function(x){ return x.id === id; });
+  if (!d) return;
+  _printDocLockedInternal(d);
+}
 
-/* Init */
-items=[];
-addItem();
-invoices=JSON.parse(localStorage.getItem("rp_invoices")||"[]");
-renderList();
-updateNumberLabel();
-</script>
+try{
+  Object.defineProperty(window, "printDocLocked", {
+    value: printDocLocked, writable: false, configurable: false
+  });
+}catch(e){}
 
+
+    function newDoc(){
+      currentId = null;
+      document.getElementById("docType").value = "estimate";
+      document.getElementById("clientName").value = "";
+      document.getElementById("clientPhone").value = "";
+      document.getElementById("clientEmail").value = "";
+      document.getElementById("invoiceNumber").value = "";
+      document.getElementById("invoiceDate").value = todayISO();
+      document.getElementById("dueDate").value = "";
+
+      items = [{ category:"", description:"", qty:1, rate:"" }];
+      updateNumberLabel();
+      renderItems();
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise(function(resolve,reject){
+        var r = new FileReader();
+        r.onload = function(){ resolve(String(r.result || "")); };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function clearReceiptUI(){
+      receiptFile = null;
+      receiptThumb = "";
+      receiptRawText = "";
+      document.getElementById("receiptStatus").textContent = "";
+      document.getElementById("receiptPreviewWrap").style.display = "none";
+      document.getElementById("receiptPreview").src = "";
+      document.getElementById("receiptFileGallery").value = "";
+      document.getElementById("receiptFileCamera").value = "";
+    }
+
+    function onReceiptChosen(file){
+      return (async function(){
+        if (!file) return;
+        receiptFile = file;
+        document.getElementById("receiptStatus").textContent = "Receipt loaded: " + file.name;
+        var dataUrl = await readFileAsDataURL(file);
+        receiptThumb = dataUrl;
+        document.getElementById("receiptPreview").src = dataUrl;
+        document.getElementById("receiptPreviewWrap").style.display = "block";
+      })();
+    }
+
+    function scanReceiptOCR(){
+      return (async function(){
+        if (!receiptFile || !receiptThumb) return alert("Add a receipt image first.");
+        document.getElementById("receiptStatus").textContent = "Scanning...";
+        try{
+          var res = await Tesseract.recognize(receiptThumb, "eng");
+          receiptRawText = (res.data && res.data.text) ? res.data.text : "";
+          document.getElementById("receiptStatus").textContent = "Scan complete. (You can still edit fields before saving.)";
+          if (!document.getElementById("expenseDescription").value.trim()){
+            var firstLine = receiptRawText.split("\n").map(function(s){ return s.trim(); }).find(Boolean) || "Receipt";
+            document.getElementById("expenseDescription").value = firstLine;
+          }
+        } catch(e){
+          console.error(e);
+          document.getElementById("receiptStatus").textContent = "Scan failed. You can still save manually.";
+        }
+      })();
+    }
+
+    function refreshClientDropdowns(){
+      var clients = getClientsFromData();
+      var expenseClient = document.getElementById("expenseClient");
+      var filterClient = document.getElementById("expenseFilterClient");
+      var last = localStorage.getItem(LS_LAST_CLIENT) || "";
+      var opts = clients.map(function(c){ return "<option value='" + esc(c) + "'>" + esc(c) + "</option>"; }).join("");
+
+      expenseClient.innerHTML = "<option value=''>Select client...</option>" + opts;
+      if (last && clients.includes(last)) expenseClient.value = last;
+
+      var cur = filterClient.value || "";
+      filterClient.innerHTML = "<option value=''>All clients</option>" + opts;
+      filterClient.value = cur || "";
+    }
+
+    function addExpenseFromForm(e){
+      e.preventDefault();
+
+      var client = document.getElementById("expenseClient").value;
+      var date = document.getElementById("expenseDate").value || todayISO();
+      var cat = document.getElementById("expenseCategory").value;
+      var amt = Number(document.getElementById("expenseAmount").value || 0);
+      var desc = document.getElementById("expenseDescription").value.trim();
+
+      if (!client) return alert("Select a client for this expense.");
+      if (!desc) return alert("Vendor/Description required.");
+      if (!amt || amt <= 0) return alert("Enter a valid amount.");
+
+      expenses.push({
+        id: Date.now(),
+        client: String(client),
+        date: date,
+        category: cat,
+        amount: amt,
+        description: desc,
+        receiptThumb: receiptThumb || "",
+        receiptText: receiptRawText || ""
+      });
+
+      persistAll();
+      clearReceiptUI();
+      document.getElementById("expenseAmount").value = "";
+      document.getElementById("expenseDescription").value = "";
+      editingExpenseId = null;
+
+      renderExpensesTable();
+      renderClientsPage();
+      renderBusinessPage();
+    }
+
+    function expenseCategoriesOptions(selected){
+      var cats = ["Materials","Labor","Subcontractor","Dumpster","Permits/Fees","Fuel/Travel","Tools/Equipment","Other","Receipt"];
+      return cats.map(function(c){
+        return "<option value='" + c + "'" + (String(selected)===String(c) ? " selected" : "") + ">" + c + "</option>";
+      }).join("");
+    }
+
+    function clientOptions(selectedClient){
+      var clients = getClientsFromData();
+      var opts = clients.map(function(c){
+        var sel = (String(selectedClient)===String(c)) ? " selected" : "";
+        return "<option value='" + esc(c) + "'" + sel + ">" + esc(c) + "</option>";
+      }).join("");
+      return "<option value=''>Select...</option>" + opts;
+    }
+
+    function renderExpensesTable(){
+      var body = document.getElementById("expensesTableBody");
+      var q = (document.getElementById("expenseSearch").value || "").trim().toLowerCase();
+      var filterClient = document.getElementById("expenseFilterClient").value || "";
+      var filterCat = document.getElementById("expenseFilterCategory").value || "";
+
+      var rows = expenses
+        .slice()
+        .sort(function(a,b){
+          var ta = parseISO(a.date) ? parseISO(a.date).getTime() : 0;
+          var tb = parseISO(b.date) ? parseISO(b.date).getTime() : 0;
+          return (tb - ta) || (b.id - a.id);
+        })
+        .filter(function(x){
+          if (filterClient && String(x.client) !== String(filterClient)) return false;
+          if (filterCat && String(x.category) !== String(filterCat)) return false;
+          if (q && !String(x.description||"").toLowerCase().includes(q)) return false;
+          return true;
+        });
+
+      body.innerHTML = "";
+
+      rows.forEach(function(ex){
+        var tr = document.createElement("tr");
+
+        if (editingExpenseId === ex.id){
+          tr.innerHTML =
+            "<td><input type='date' value='" + esc(ex.date || todayISO()) + "' data-k='date'></td>" +
+            "<td><select data-k='client'>" + clientOptions(ex.client) + "</select></td>" +
+            "<td><select data-k='category'>" + expenseCategoriesOptions(ex.category) + "</select></td>" +
+            "<td>" +
+              "<input value='" + esc(ex.description || "") + "' data-k='description'>" +
+              (ex.receiptThumb ? "<div class='hint' style='margin-top:4px;'>(receipt attached)</div>" : "") +
+            "</td>" +
+            "<td class='right'><input type='number' step='0.01' value='" + esc(ex.amount || 0) + "' data-k='amount'></td>" +
+            "<td class='right' style='white-space:nowrap;'>" +
+              "<button class='btn btn-primary btn-sm' type='button' data-action='save'>Save</button> " +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='cancel'>Cancel</button>" +
+            "</td>";
+
+          tr.querySelector("[data-action='cancel']").addEventListener("click", function(){
+            editingExpenseId = null;
+            renderExpensesTable();
+          });
+
+          tr.querySelector("[data-action='save']").addEventListener("click", function(){
+            var date = tr.querySelector("[data-k='date']").value || todayISO();
+            var client = tr.querySelector("[data-k='client']").value || "";
+            var category = tr.querySelector("[data-k='category']").value || "Other";
+            var description = tr.querySelector("[data-k='description']").value.trim();
+            var amount = Number(tr.querySelector("[data-k='amount']").value || 0);
+
+            if (!client) return alert("Pick a client.");
+            if (!description) return alert("Description required.");
+            if (!amount || amount <= 0) return alert("Amount must be > 0.");
+
+            ex.date = date;
+            ex.client = String(client);
+            ex.category = category;
+            ex.description = description;
+            ex.amount = amount;
+
+            persistAll();
+            editingExpenseId = null;
+            renderExpensesTable();
+            renderClientsPage();
+            renderBusinessPage();
+            refreshClientDropdowns();
+          });
+
+        } else {
+          tr.innerHTML =
+            "<td>" + esc(ex.date || "") + "</td>" +
+            "<td>" + esc(ex.client || "") + "</td>" +
+            "<td>" + esc(ex.category || "") + "</td>" +
+            "<td>" + esc(ex.description || "") + "</td>" +
+            "<td class='right'>$" + fmtMoney(ex.amount || 0) + "</td>" +
+            "<td class='right' style='white-space:nowrap;'>" +
+              "<button class='btn btn-secondary btn-sm' type='button' data-action='edit'>Edit</button> " +
+              "<button class='btn btn-danger btn-sm' type='button' data-action='del'>Delete</button>" +
+            "</td>";
+
+          tr.querySelector("[data-action='edit']").addEventListener("click", function(){
+            editingExpenseId = ex.id;
+            renderExpensesTable();
+          });
+
+          tr.querySelector("[data-action='del']").addEventListener("click", function(){
+            if (!confirm("Delete this expense?")) return;
+            expenses = expenses.filter(function(x){ return x.id !== ex.id; });
+            persistAll();
+            renderExpensesTable();
+            renderClientsPage();
+            renderBusinessPage();
+            refreshClientDropdowns();
+          });
+        }
+
+        body.appendChild(tr);
+      });
+
+      document.getElementById("expensesCount").textContent = rows.length + " expense(s) shown.";
+    }
+
+    function moneyLabel(v){
+      var n = Number(v||0);
+      var sign = n < 0 ? "-" : "";
+      var abs = Math.abs(n);
+      if (abs >= 1000000) return sign + "$" + (abs/1000000).toFixed(1) + "M";
+      if (abs >= 1000) return sign + "$" + (abs/1000).toFixed(1) + "K";
+      return sign + "$" + abs.toFixed(0);
+    }
+
+    function drawBarChart(canvas, labels, values){
+      var ctx = canvas.getContext("2d");
+      var w = canvas.width = canvas.clientWidth;
+      var h = canvas.height;
+      ctx.clearRect(0,0,w,h);
+
+      var padL = 40, padR = 16, padB = 46, padT = 18;
+      var maxV = Math.max.apply(null, [1].concat(values.map(function(v){ return Math.abs(v); })));
+      var barW = (w - padL - padR) / Math.max(1, values.length);
+      var baseY = h - padB;
+
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath();
+      ctx.moveTo(padL, baseY);
+      ctx.lineTo(w - padR, baseY);
+      ctx.strokeStyle = "#111827";
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "#111827";
+
+      values.forEach(function(v,i){
+        var x = padL + i*barW + 6;
+        var bw = Math.max(8, barW - 12);
+        var bh = (Math.abs(v)/maxV) * (h - padT - padB - 18);
+        var y = baseY - bh;
+
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = "#111827";
+        ctx.fillRect(x, y, bw, bh);
+        ctx.globalAlpha = 1;
+
+        var valText = moneyLabel(v);
+        var tw = ctx.measureText(valText).width;
+        ctx.fillStyle = "#111827";
+        ctx.fillText(valText, x + (bw - tw)/2, y - 6);
+
+        ctx.save();
+        ctx.translate(x + bw/2, baseY + 14);
+        ctx.rotate(-0.35);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#111827";
+        var lab = String(labels[i]||"");
+        var shortLab = lab.length > 12 ? lab.slice(0,12) + "..." : lab;
+        ctx.fillText(shortLab, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    function drawPieChart(canvas, labels, values){
+      var ctx = canvas.getContext("2d");
+      var w = canvas.width = canvas.clientWidth;
+      var h = canvas.height;
+      ctx.clearRect(0,0,w,h);
+
+      var total = values.reduce(function(s,v){ return s + Math.max(0,Number(v||0)); }, 0) || 1;
+
+      var cx = Math.floor(w/2);
+      var cy = Math.floor(h/2);
+      var r = Math.floor(Math.min(w,h) * 0.34);
+
+      var shades = ["#111827","#374151","#4b5563","#6b7280","#9ca3af","#d1d5db"];
+
+      var a0 = -Math.PI/2;
+      for (var i=0;i<labels.length;i++){
+        var v = Math.max(0,Number(values[i]||0));
+        var a1 = a0 + (v/total) * Math.PI*2;
+
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.arc(cx,cy,r,a0,a1);
+        ctx.closePath();
+        ctx.fillStyle = shades[i % shades.length];
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        a0 = a1;
+      }
+
+      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "#111827";
+      var y = 16;
+      var x = 16;
+      for (var j=0;j<labels.length;j++){
+        var vv = Number(values[j]||0);
+        if (vv <= 0) continue;
+        ctx.fillStyle = shades[j % shades.length];
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(x, y-10, 10, 10);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#111827";
+        ctx.fillText(String(labels[j]) + " - $" + fmtMoney(vv), x + 16, y);
+        y += 18;
+      }
+    }
+
+    function monthlyBuckets(monthsBack){
+      var now = new Date();
+      var buckets = [];
+      for (var i=monthsBack-1; i>=0; i--){
+        var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+        buckets.push({
+          key: String(d.getMonth()+1).padStart(2,"0") + "/" + String(d.getFullYear()).slice(-2),
+          year: d.getFullYear(),
+          month: d.getMonth()
+        });
+      }
+      return buckets;
+    }
+
+    function renderBusinessPage(){
+      var now = new Date();
+      var y0 = startOfYear(now);
+
+      var ytdRevenue = invoices
+        .filter(function(d){ return d.type === "invoice"; })
+        .filter(function(d){
+          var dd = parseISO(d.date);
+          return dd && dd >= y0;
+        })
+        .reduce(function(s,d){ return s + Number(d.total||0); }, 0);
+
+      var ytdExpenses = expenses
+        .filter(function(e){
+          var dd = parseISO(e.date);
+          return dd && dd >= y0;
+        })
+        .reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+
+      var ytdProfit = ytdRevenue - ytdExpenses;
+      var avgPct = (ytdRevenue > 0) ? ((ytdProfit / ytdRevenue) * 100).toFixed(1) + "%" : "-";
+
+      document.getElementById("bizYtdRevenue").textContent = "$" + fmtMoney(ytdRevenue);
+      document.getElementById("bizYtdExpenses").textContent = "$" + fmtMoney(ytdExpenses);
+      document.getElementById("bizYtdProfit").textContent = "$" + fmtMoney(ytdProfit);
+      document.getElementById("bizAvgProfitPct").textContent = avgPct;
+
+      var months = monthlyBuckets(chartRangeMonths);
+      var vals = months.map(function(m){
+        var income = invoices
+          .filter(function(d){ return d.type === "invoice"; })
+          .filter(function(d){
+            var dd = parseISO(d.date);
+            return dd && dd.getFullYear() === m.year && dd.getMonth() === m.month;
+          })
+          .reduce(function(s,d){ return s + Number(d.total||0); }, 0);
+
+        var spend = expenses
+          .filter(function(e){
+            var dd = parseISO(e.date);
+            return dd && dd.getFullYear() === m.year && dd.getMonth() === m.month;
+          })
+          .reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+
+        return income - spend;
+      });
+
+      drawBarChart(document.getElementById("monthlyProfitChart"), months.map(function(m){ return m.key; }), vals);
+
+      var pieMap = new Map();
+      expenses.forEach(function(e){
+        var dd = parseISO(e.date);
+        if (!dd || dd < y0) return;
+        var k = e.category || "Other";
+        pieMap.set(k, (pieMap.get(k) || 0) + Number(e.amount||0));
+      });
+      var pieLabels = Array.from(pieMap.keys()).sort(function(a,b){ return a.localeCompare(b); });
+      var pieValues = pieLabels.map(function(k){ return pieMap.get(k) || 0; });
+      drawPieChart(document.getElementById("expensePieChart"), pieLabels, pieValues);
+
+      var clients = getClientsFromData();
+      var rows = clients.map(function(c){
+        var lc = c.trim().toLowerCase();
+        var rev = invoices
+          .filter(function(d){ return d.type === "invoice" && String(d.name||"").trim().toLowerCase() === lc; })
+          .reduce(function(s,d){ return s + Number(d.total||0); }, 0);
+        var exp = expenses
+          .filter(function(e){ return String(e.client||"").trim().toLowerCase() === lc; })
+          .reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+        return { client:c, profit: rev - exp };
+      }).sort(function(a,b){ return b.profit - a.profit; }).slice(0,8);
+
+      drawBarChart(document.getElementById("profitByClientChart"), rows.map(function(r){ return r.client; }), rows.map(function(r){ return r.profit; }));
+
+      renderBusinessDrilldown();
+    }
+
+    function renderBusinessDrilldown(){
+      var cat = document.getElementById("bizCategory").value || "";
+      var time = document.getElementById("bizTime").value || "ytd";
+      var q = (document.getElementById("bizSearch").value || "").trim().toLowerCase();
+
+      var now = new Date();
+      var minDate = null;
+      if (time === "ytd") minDate = startOfYear(now);
+      if (time === "mtd") minDate = startOfMonth(now);
+      if (time === "qtd") minDate = startOfQuarter(now);
+
+      var rows = expenses.slice().filter(function(e){
+        if (cat && String(e.category) !== String(cat)) return false;
+        var d = parseISO(e.date);
+        if (minDate && (!d || d < minDate)) return false;
+        if (q && !String(e.description||"").toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      rows.sort(function(a,b){
+        var ta = parseISO(a.date) ? parseISO(a.date).getTime() : 0;
+        var tb = parseISO(b.date) ? parseISO(b.date).getTime() : 0;
+        return (tb - ta) || (b.id - a.id);
+      });
+
+      var body = document.getElementById("bizListBody");
+      body.innerHTML = "";
+      rows.forEach(function(e){
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + esc(e.date || "") + "</td>" +
+          "<td>" + esc(e.client || "") + "</td>" +
+          "<td>" + esc(e.category || "") + "</td>" +
+          "<td>" + esc(e.description || "") + "</td>" +
+          "<td class='right'>$" + fmtMoney(e.amount || 0) + "</td>";
+        body.appendChild(tr);
+      });
+
+      var total = rows.reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+      document.getElementById("bizListHint").textContent = rows.length + " item(s). Total: $" + fmtMoney(total) + ".";
+    }
+
+    var modalDrawFn = null;
+
+    function openChartModal(title, drawFn){
+      document.getElementById("modalTitle").textContent = title;
+      modalDrawFn = drawFn;
+      document.getElementById("chartModal").classList.add("open");
+      setTimeout(function(){
+        if (modalDrawFn) modalDrawFn(document.getElementById("modalCanvas"));
+      }, 0);
+    }
+
+    function closeChartModal(){
+      document.getElementById("chartModal").classList.remove("open");
+      var c = document.getElementById("modalCanvas");
+      var ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+      modalDrawFn = null;
+    }
+
+    function wireEvents(){
+      wireNav();
+
+      document.getElementById("docType").addEventListener("change", updateNumberLabel);
+      document.getElementById("catSortMode").addEventListener("change", function(){ persistAll(); });
+
+      document.getElementById("addItemBtn").addEventListener("click", addItem);
+      document.getElementById("saveInvoiceBtn").addEventListener("click", saveDoc);
+      document.getElementById("newDocBtn").addEventListener("click", newDoc);
+
+      document.getElementById("docSearch").addEventListener("input", renderDocList);
+
+      document.getElementById("expenseForm").addEventListener("submit", addExpenseFromForm);
+      document.getElementById("expenseSearch").addEventListener("input", renderExpensesTable);
+      document.getElementById("expenseFilterClient").addEventListener("change", renderExpensesTable);
+      document.getElementById("expenseFilterCategory").addEventListener("change", renderExpensesTable);
+      document.getElementById("clearExpenseFiltersBtn").addEventListener("click", function(){
+        document.getElementById("expenseSearch").value = "";
+        document.getElementById("expenseFilterClient").value = "";
+        document.getElementById("expenseFilterCategory").value = "";
+        editingExpenseId = null;
+        renderExpensesTable();
+      });
+
+      document.getElementById("receiptFileGallery").addEventListener("change", function(e){
+        onReceiptChosen(e.target.files && e.target.files[0]);
+      });
+      document.getElementById("receiptFileCamera").addEventListener("change", function(e){
+        onReceiptChosen(e.target.files && e.target.files[0]);
+      });
+      document.getElementById("scanReceiptBtn").addEventListener("click", scanReceiptOCR);
+      document.getElementById("clearReceiptBtn").addEventListener("click", clearReceiptUI);
+
+      document.getElementById("clientSearch").addEventListener("input", renderClientsPage);
+
+      document.getElementById("bizRange6m").addEventListener("click", function(){ chartRangeMonths = 6; renderBusinessPage(); });
+      document.getElementById("bizRange12m").addEventListener("click", function(){ chartRangeMonths = 12; renderBusinessPage(); });
+      document.getElementById("bizCategory").addEventListener("change", renderBusinessDrilldown);
+      document.getElementById("bizTime").addEventListener("change", renderBusinessDrilldown);
+      document.getElementById("bizSearch").addEventListener("input", renderBusinessDrilldown);
+
+      document.getElementById("monthlyProfitChart").addEventListener("click", function(){
+        var months = monthlyBuckets(chartRangeMonths);
+        var vals = months.map(function(m){
+          var income = invoices
+            .filter(function(d){ return d.type === "invoice"; })
+            .filter(function(d){
+              var dd = parseISO(d.date);
+              return dd && dd.getFullYear() === m.year && dd.getMonth() === m.month;
+            })
+            .reduce(function(s,d){ return s + Number(d.total||0); }, 0);
+
+          var spend = expenses
+            .filter(function(e){
+              var dd = parseISO(e.date);
+              return dd && dd.getFullYear() === m.year && dd.getMonth() === m.month;
+            })
+            .reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+
+          return income - spend;
+        });
+
+        openChartModal("Monthly Profit", function(c){ drawBarChart(c, months.map(function(m){ return m.key; }), vals); });
+      });
+
+      document.getElementById("profitByClientChart").addEventListener("click", function(){
+        var clients = getClientsFromData();
+        var rows = clients.map(function(c){
+          var lc = c.trim().toLowerCase();
+          var rev = invoices
+            .filter(function(d){ return d.type === "invoice" && String(d.name||"").trim().toLowerCase() === lc; })
+            .reduce(function(s,d){ return s + Number(d.total||0); }, 0);
+          var exp = expenses
+            .filter(function(e){ return String(e.client||"").trim().toLowerCase() === lc; })
+            .reduce(function(s,e){ return s + Number(e.amount||0); }, 0);
+          return { client:c, profit: rev - exp };
+        }).sort(function(a,b){ return b.profit - a.profit; }).slice(0,8);
+
+        openChartModal("Profit by Client", function(c){ drawBarChart(c, rows.map(function(r){ return r.client; }), rows.map(function(r){ return r.profit; })); });
+      });
+
+      document.getElementById("expensePieChart").addEventListener("click", function(){
+        var now = new Date();
+        var y0 = startOfYear(now);
+        var pieMap = new Map();
+        expenses.forEach(function(e){
+          var dd = parseISO(e.date);
+          if (!dd || dd < y0) return;
+          var k = e.category || "Other";
+          pieMap.set(k, (pieMap.get(k) || 0) + Number(e.amount||0));
+        });
+        var labels = Array.from(pieMap.keys()).sort(function(a,b){ return a.localeCompare(b); });
+        var values = labels.map(function(k){ return pieMap.get(k) || 0; });
+        openChartModal("Expense Breakdown (YTD)", function(c){ drawPieChart(c, labels, values); });
+      });
+
+      document.getElementById("closeModalBtn").addEventListener("click", closeChartModal);
+      document.getElementById("chartModal").addEventListener("click", function(e){
+        if (e.target.id === "chartModal") closeChartModal();
+      });
+    }
+
+    function init(){
+      loadAll();
+
+      document.getElementById("invoiceDate").value = todayISO();
+      document.getElementById("expenseDate").value = todayISO();
+
+      items = [{ category:"", description:"", qty:1, rate:"" }];
+      updateNumberLabel();
+      renderItems();
+      renderDocList();
+
+      refreshClientDropdowns();
+      renderClientsPage();
+      renderBusinessPage();
+
+      wireEvents();
+
+      var tab = localStorage.getItem(LS_DEFAULT_TAB) || "invoices";
+      showPage(tab);
+    }
+
+    init();
+  })();
+  </script>
 </body>
 </html>
+ 
