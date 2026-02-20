@@ -1571,8 +1571,9 @@ function _printDocLockedInternal(d){
     + "*{box-sizing:border-box;}"
     + "body{margin:0;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#222;"
     + "-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff;}"
+    + "@page{size:landscape;margin:10mm;}" // force landscape orientation so wide tables fit
     + ".table-wrap{width:100%;overflow-x:auto;}"
-    + "table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.9rem;min-width:720px;}"
+    + "table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.9rem;min-width:0;}" // remove fixed min-width to avoid cutoff
     + "th{background:#eeeeee;color:#111827;font-weight:750;padding:10px 8px;text-align:left;border-bottom:2px solid #ff9a00;}"
     + "td{padding:8px;border-bottom:1px solid #eee;vertical-align:top;}"
     + ".right{text-align:right;}"
