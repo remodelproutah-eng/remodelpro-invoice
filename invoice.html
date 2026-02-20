@@ -294,7 +294,7 @@
         <div class="grid-2" style="margin-top:8px;">
           <div>
             <label>Client Name</label>
-            <input id="clientName" placeholder="Client name (add a number if it is a new job later)">
+            <input id="clientName" placeholder="Client name (add a number if it is a new job later)" spellcheck="true">
           </div>
           <div>
             <label id="numberLabel">Estimate #</label>
@@ -446,7 +446,7 @@
           </div>
 
           <label>Vendor / Description</label>
-          <input type="text" id="expenseDescription" placeholder="Home Depot - LVP flooring">
+          <input type="text" id="expenseDescription" placeholder="Home Depot - LVP flooring" spellcheck="true">
 
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
             <button type="button" class="btn btn-secondary" id="scanReceiptBtn">Scan Receipt (OCR)</button>
@@ -1107,7 +1107,7 @@
 
         tr.innerHTML =
           "<td><select>" + options + "</select></td>" +
-          "<td><input value='" + esc(it.description || "") + "'></td>" +
+          "<td><input spellcheck='true' value='" + esc(it.description || "") + "'></td>" +
           "<td class='right'><input style='max-width:90px' type='number' step='1' min='0' value='" + esc(qtyVal) + "'></td>" +
           "<td class='right'><input inputmode='decimal' type='number' step='0.01' value='" + esc(it.rate == null ? "" : it.rate) + "'></td>" +
           "<td class='right' data-line='1'>TBD</td>" +
@@ -1237,6 +1237,11 @@
 
       document.getElementById("docType").value = d.type;
       document.getElementById("clientName").value = d.name || "";
+      // capitalize already-loaded name
+      document.getElementById("clientName").value = capitalizeWords(document.getElementById("clientName").value);
+      document.getElementById("clientName").addEventListener("blur", function(e){
+        e.target.value = capitalizeWords(e.target.value);
+      });
       document.getElementById("clientPhone").value = d.phone || "";
       document.getElementById("clientEmail").value = d.email || "";
       document.getElementById("invoiceNumber").value = d.num || "";
