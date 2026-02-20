@@ -96,6 +96,8 @@
       width:100%; padding:10px 10px; font-size:1rem; margin-top:2px;
       border:1px solid #ddd; border-radius:12px; background:#fff; outline:none;
     }
+    /* capitalize words for text fields */
+    input[type="text"], textarea { text-transform: capitalize; }
     input:focus,select:focus,textarea:focus{
       border-color:#c9c9c9; box-shadow:0 0 0 3px rgba(17,24,39,0.06);
     }
@@ -717,10 +719,14 @@
         .replace(/&/g,"&amp;")
         .replace(/</g,"&lt;")
         .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
+        .replace(/\"/g,"&quot;")
         .replace(/'/g,"&#039;");
     }
     function fmtMoney(v){ return Number(v || 0).toFixed(2); }
+
+    function capitalizeWords(str){
+      return String(str || "").replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+    }
     function isBlank(v){ return v === "" || v === null || v === undefined; }
     function isDiscount(cat){ return String(cat || "").trim().toLowerCase() === "discount"; }
     function parseNum(v){
@@ -1130,6 +1136,10 @@
         descInput.addEventListener("input", function(e){
           items[i].description = e.target.value;
         });
+        descInput.addEventListener("blur", function(e){
+          e.target.value = capitalizeWords(e.target.value);
+          items[i].description = e.target.value;
+        });
 
         qtyInput.addEventListener("input", function(e){
           items[i].qty = e.target.value;
@@ -1165,6 +1175,7 @@
       var num = document.getElementById("invoiceNumber").value.trim();
       var phone = document.getElementById("clientPhone").value.trim();
       var email = document.getElementById("clientEmail").value.trim();
+      name = capitalizeWords(name);
       var date = document.getElementById("invoiceDate").value;
       var due = document.getElementById("dueDate").value;
       var legal = document.getElementById("legalToggle").checked;
@@ -1192,7 +1203,7 @@
         items: items.map(function(it){
           return {
             category: it.category || "",
-            description: it.description || "",
+            description: capitalizeWords(it.description || ""),
             qty: (it.qty == null ? 1 : it.qty),
             rate: (it.rate == null ? "" : it.rate)
           };
@@ -1725,6 +1736,9 @@ try{
       currentId = null;
       document.getElementById("docType").value = "estimate";
       document.getElementById("clientName").value = "";
+      document.getElementById("clientName").addEventListener("blur", function(e){
+        e.target.value = capitalizeWords(e.target.value);
+      });
       document.getElementById("clientPhone").value = "";
       document.getElementById("clientEmail").value = "";
       document.getElementById("invoiceNumber").value = "";
@@ -1811,6 +1825,7 @@ try{
       var cat = document.getElementById("expenseCategory").value;
       var amt = Number(document.getElementById("expenseAmount").value || 0);
       var desc = document.getElementById("expenseDescription").value.trim();
+      desc = capitalizeWords(desc);
 
       if (!client) return alert("Select a client for this expense.");
       if (!desc) return alert("Vendor/Description required.");
@@ -1831,6 +1846,9 @@ try{
       clearReceiptUI();
       document.getElementById("expenseAmount").value = "";
       document.getElementById("expenseDescription").value = "";
+      document.getElementById("expenseDescription").addEventListener("blur", function(e){
+        e.target.value = capitalizeWords(e.target.value);
+      });
       editingExpenseId = null;
 
       renderExpensesTable();
