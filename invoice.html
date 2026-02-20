@@ -321,6 +321,9 @@
             <input id="dueDate" type="date">
           </div>
         </div>
+        <div style="margin-top:8px;">
+          <label><input type="checkbox" id="legalToggle"> Include legal terms (big jobs)</label>
+        </div>
 
         <div class="grid-2">
           <div>
@@ -703,6 +706,11 @@
       "Payment is due on the invoice date unless otherwise agreed in writing.";
     var PAYMENT_METHODS =
       "Accepted Payment Methods: Cash, Check, Cashier's Check, Venmo, Wire Transfer, Credit/Debit Cards (5% transaction fee applies).";
+    var ESTIMATE_LEGAL_TEXT =
+      "Legal: Work performed under this estimate is subject to RemodelPRO's standard terms and conditions. " +
+      "Estimates are valid for 30 days and may change if site conditions differ. Customer is responsible for permits, " +
+      "inspections, and providing clear access. RemodelPRO is not liable for weather delays, material availability, or " +
+      "unforeseen conditions once work begins. Payment due as outlined above. Refer to full terms at remodelproutah.com/terms.";
 
     function esc(str){
       return String(str == null ? "" : str)
@@ -1159,6 +1167,7 @@
       var email = document.getElementById("clientEmail").value.trim();
       var date = document.getElementById("invoiceDate").value;
       var due = document.getElementById("dueDate").value;
+      var legal = document.getElementById("legalToggle").checked;
 
       if (!name) return alert("Client name required.");
 
@@ -1178,6 +1187,7 @@
         num: num,
         date: date,
         due: (type === "invoice" ? (due || "") : ""),
+        legal: legal || false,
         total: total,
         items: items.map(function(it){
           return {
@@ -1221,6 +1231,7 @@
       document.getElementById("invoiceNumber").value = d.num || "";
       document.getElementById("invoiceDate").value = d.date || "";
       document.getElementById("dueDate").value = d.due || "";
+      document.getElementById("legalToggle").checked = !!d.legal;
 
       items = (d.items || []).map(function(it){
         return {
@@ -1361,6 +1372,16 @@
           + "</div>";
       }
 
+      // optional legal block if checkbox enabled
+      var legalExtra = "";
+      if (d.type === "estimate" && d.legal){
+        legalExtra = "" 
+          + "<div class='card' style='background:#fff; margin-top:12px; border:1px solid #f00;'>" 
+          +   "<h3 style='margin:0 0 6px;color:#b00;'>Additional Terms</h3>" 
+          +   "<div class='hint' style='margin-top:0; color:#444;'>" + esc(ESTIMATE_LEGAL_TEXT) + "</div>" 
+          + "</div>";
+      }
+
       var invoiceExtra = "";
       if (d.type === "invoice"){
         invoiceExtra = ""
@@ -1426,6 +1447,7 @@
         +     "</div>"
         +   "</div>"
         +   (d.type === "estimate" ? estimateExtra : "")
+        +   (d.type === "estimate" ? legalExtra : "")
         +   (d.type === "invoice" ? invoiceExtra : "")
         +   bottomTotal
         +   signatures
@@ -1708,6 +1730,7 @@ try{
       document.getElementById("invoiceNumber").value = "";
       document.getElementById("invoiceDate").value = todayISO();
       document.getElementById("dueDate").value = "";
+      document.getElementById("legalToggle").checked = false;
 
       items = [{ category:"", description:"", qty:1, rate:"" }];
       updateNumberLabel();
@@ -2202,6 +2225,7 @@ try{
 
       document.getElementById("addItemBtn").addEventListener("click", addItem);
       document.getElementById("saveInvoiceBtn").addEventListener("click", saveDoc);
+      document.getElementById("legalToggle").addEventListener("change", function(){ /* no-op for persistence? */ });
       document.getElementById("newDocBtn").addEventListener("click", newDoc);
 
       document.getElementById("docSearch").addEventListener("input", renderDocList);
