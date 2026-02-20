@@ -635,6 +635,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
   <script>
   (function(){
@@ -1474,6 +1475,7 @@
           "<div class='drawer' id='drawer_" + d.id + "'>" +
             "<div class='drawer-actions' style='display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:8px;'>" +
               "<button class='btn btn-primary btn-sm' type='button' data-action='print' data-id='" + d.id + "'>Print / Save PDF</button>" +
+              "<button class='btn btn-primary btn-sm' type='button' data-action='download' data-id='" + d.id + "'>Download PDF</button>" +
               "<button class='btn btn-secondary btn-sm' type='button' data-action='email' data-id='" + d.id + "'>Email</button>" +
               "<button class='btn btn-secondary btn-sm' type='button' data-action='text' data-id='" + d.id + "'>Text</button>" +
               "<button class='btn btn-secondary btn-sm' type='button' data-action='follow' data-id='" + d.id + "'>Follow-up Text</button>" +
@@ -1500,6 +1502,7 @@
         });
 
         card.querySelector("[data-action='print']").addEventListener("click", function(){ printDocLocked(d.id); });
+        card.querySelector("[data-action='download']").addEventListener("click", function(){ downloadDoc(d.id); });
         card.querySelector("[data-action='email']").addEventListener("click", function(){ emailDoc(d.id); });
         card.querySelector("[data-action='text']").addEventListener("click", function(){ textDoc(d.id, false); });
         card.querySelector("[data-action='follow']").addEventListener("click", function(){ textDoc(d.id, true); });
@@ -1675,6 +1678,20 @@ function printDocLocked(id){
   var d = invoices.find(function(x){ return x.id === id; });
   if (!d) return;
   _printDocLockedInternal(d);
+}
+
+function downloadDoc(id){
+  var d = invoices.find(function(x){ return x.id === id; });
+  if (!d) return;
+  var html = buildPrintHeaderHTML() + buildDocPreviewHTML(d);
+  var opt = {
+    margin: 10,
+    filename: (d.num || 'invoice') + '.pdf',
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+  // html2pdf returns a Promise; calling save() triggers download
+  html2pdf().from(html).set(opt).save();
 }
 
 try{
