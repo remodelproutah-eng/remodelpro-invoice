@@ -1474,7 +1474,6 @@
           "</div>" +
           "<div class='drawer' id='drawer_" + d.id + "'>" +
             "<div class='drawer-actions' style='display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:8px;'>" +
-              "<button class='btn btn-primary btn-sm' type='button' data-action='print' data-id='" + d.id + "'>Print / Save PDF</button>" +
               "<button class='btn btn-primary btn-sm' type='button' data-action='download' data-id='" + d.id + "'>Download PDF</button>" +
               "<button class='btn btn-secondary btn-sm' type='button' data-action='email' data-id='" + d.id + "'>Email</button>" +
               "<button class='btn btn-secondary btn-sm' type='button' data-action='text' data-id='" + d.id + "'>Text</button>" +
@@ -1501,7 +1500,6 @@
           refreshClientDropdowns();
         });
 
-        card.querySelector("[data-action='print']").addEventListener("click", function(){ printDocLocked(d.id); });
         card.querySelector("[data-action='download']").addEventListener("click", function(){ downloadDoc(d.id); });
         card.querySelector("[data-action='email']").addEventListener("click", function(){ emailDoc(d.id); });
         card.querySelector("[data-action='text']").addEventListener("click", function(){ textDoc(d.id, false); });
