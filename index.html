@@ -1,10 +1,451 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <script>
-    window.location.replace(window.location.href.replace(/\/$/, '') + '/invoice.html');
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RemodelPRO Invoicing + Expenses</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="./site.webmanifest" />
 </head>
-<body></body>
+
+<body>
+  <div class="app">
+    <!-- TOP NAV -->
+    <div class="top-nav">
+      <div class="nav-left">
+        <div class="menu-wrap">
+          <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Menu">
+            <div class="bars"><span></span><span></span><span></span></div>
+          </button>
+          <div class="menu" id="navMenu">
+            <button type="button" data-page="clients" id="mClients">Clients</button>
+            <button type="button" data-page="invoices" id="mInvoices">Estimates / Invoices</button>
+            <button type="button" data-page="expenses" id="mExpenses">Expenses</button>
+            <button type="button" data-page="business" id="mBusiness">Business</button>
+          </div>
+        </div>
+        <div class="pill" id="pagePill">Estimates / Invoices</div>
+      </div>
+      <div class="pill">RemodelPRO</div>
+    </div>
+
+    <!-- CLIENTS PAGE -->
+    <div id="clientsPage" style="display:none;">
+      <div class="row" style="margin-bottom:10px;">
+        <h2 style="margin:0;">Clients</h2>
+        <div style="min-width:260px;">
+          <label style="margin-top:0;">Search</label>
+          <input id="clientSearch" placeholder="smith, john, bath..." />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Client List</h3>
+        <div class="hint" style="margin-top:-4px;">Tap a client to expand details.</div>
+        <div id="clientsList" style="margin-top:10px;"></div>
+        <div id="clientsEmpty" class="hint" style="margin-top:10px; display:none;">No clients yet.</div>
+      </div>
+    </div>
+
+    <!-- INVOICES / ESTIMATES PAGE -->
+    <div id="invoicePage">
+      <header>
+        <div class="header-left">
+          <div class="logo-text">
+            Remodel<span>PRO</span>
+            <div class="sub-title">Home Remodeling</div>
+          </div>
+          <div class="contact-info">
+            <strong>Seth Riddle - Owner / Operator</strong><br>
+            Phone: (801) 864-4341<br>
+            Email: RemodelProUtah@gmail.com
+          </div>
+        </div>
+        <img src="logo.png" class="logo-img" alt="Logo">
+      </header>
+
+      <div class="section-divider-top"></div>
+
+      <section class="section-builder">
+        <label>Document Type</label>
+        <select id="docType">
+          <option value="estimate">Estimate</option>
+          <option value="invoice">Invoice</option>
+        </select>
+
+        <div class="grid-2" style="margin-top:8px;">
+          <div>
+            <label>Client Name</label>
+            <input id="clientName" placeholder="Client name (add a number if it is a new job later)" spellcheck="true">
+          </div>
+          <div>
+            <label id="numberLabel">Estimate #</label>
+            <input id="invoiceNumber" placeholder="EST-001">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Client Phone (optional)</label>
+            <input id="clientPhone" placeholder="(801) 555-1234">
+          </div>
+          <div>
+            <label>Client Email (optional)</label>
+            <input id="clientEmail" placeholder="client@email.com">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Date</label>
+            <input id="invoiceDate" type="date">
+          </div>
+          <div>
+            <label>Due Date (Invoices only)</label>
+            <input id="dueDate" type="date">
+          </div>
+        </div>
+        <div style="margin-top:8px;">
+          <label><input type="checkbox" id="legalToggle"> Include legal terms (big jobs)</label>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Category Sort (Preview)</label>
+            <select id="catSortMode">
+              <option value="construction">Construction Order</option>
+              <option value="alpha">Alphabetical</option>
+            </select>
+            <div class="hint">Default is Construction Order. Discount always stays last.</div>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2>Line Items</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:160px;">Category</th>
+                <th>Description</th>
+                <th class="right" style="min-width:84px;">Qty</th>
+                <th class="right" style="min-width:130px;">Rate</th>
+                <th class="right" style="min-width:140px;">Line Total</th>
+                <th style="width:72px;"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+
+        <button class="btn btn-secondary" id="addItemBtn" type="button">Add Item</button>
+
+        <div class="total-box">Total: $<span id="invoiceTotal">0.00</span></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="saveInvoiceBtn" type="button">Save</button>
+          <button class="btn btn-secondary" id="newDocBtn" type="button">New</button>
+        </div>
+      </section>
+
+      <section class="section-list">
+        <div class="row">
+          <div>
+            <h2 style="margin:0;">Saved Documents</h2>
+            <div class="hint">Newest first.</div>
+          </div>
+          <div style="min-width:260px;">
+            <label style="margin-top:0;">Search Docs</label>
+            <input id="docSearch" placeholder="smith, est-001, invoice..." />
+          </div>
+        </div>
+
+        <div id="invoicesList"></div>
+      </section>
+    </div>
+
+    <!-- EXPENSES PAGE -->
+    <div id="expensesPage" style="display:none;">
+      <h2>Expenses</h2>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px;">Add Expense</h3>
+        <div class="hint" style="margin-top:-4px;">Manual entry or attach a receipt (gallery/camera). OCR is optional.</div>
+
+        <form id="expenseForm">
+          <div class="grid-2" style="margin-top:10px;">
+            <div>
+              <label>Attach Receipt (Gallery/Files)</label>
+              <input id="receiptFileGallery" type="file" accept="image/*" />
+            </div>
+            <div>
+              <label>Take Photo (Camera)</label>
+              <input id="receiptFileCamera" type="file" accept="image/*" capture="environment" />
+            </div>
+          </div>
+
+          <div id="receiptStatus" class="hint" style="margin-top:8px;"></div>
+
+          <div id="receiptPreviewWrap" style="margin-top:10px; display:none;">
+            <img id="receiptPreview" alt="Receipt preview" style="max-width:100%; border-radius:12px; border:1px solid #e5e5e5;" />
+          </div>
+
+          <div class="grid-2" style="margin-top:10px;">
+            <div>
+              <label>Client</label>
+              <select id="expenseClient">
+                <option value="">Select client...</option>
+              </select>
+              <div class="hint">Tip: Use the same client label you used on the estimate/invoice.</div>
+            </div>
+            <div>
+              <label>Date</label>
+              <input type="date" id="expenseDate">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Category</label>
+              <select id="expenseCategory">
+                <option value="Materials">Materials</option>
+                <option value="Labor">Labor</option>
+                <option value="Subcontractor">Subcontractor</option>
+                <option value="Dumpster">Dumpster</option>
+                <option value="Permits/Fees">Permits/Fees</option>
+                <option value="Fuel/Travel">Fuel/Travel</option>
+                <option value="Tools/Equipment">Tools/Equipment</option>
+                <option value="Other">Other</option>
+                <option value="Receipt">Receipt</option>
+              </select>
+            </div>
+            <div>
+              <label>Amount ($)</label>
+              <input type="number" step="0.01" id="expenseAmount" placeholder="0.00">
+            </div>
+          </div>
+
+          <label>Vendor / Description</label>
+          <input type="text" id="expenseDescription" placeholder="Home Depot - LVP flooring" spellcheck="true">
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button type="button" class="btn btn-secondary" id="scanReceiptBtn">Scan Receipt (OCR)</button>
+            <button type="submit" class="btn btn-primary">Save Expense</button>
+            <button type="button" class="btn btn-ghost" id="clearReceiptBtn">Clear Receipt</button>
+          </div>
+
+          <div class="hint">OCR saves extracted text for reference (browser only). You can still save without scanning.</div>
+        </form>
+      </div>
+
+      <div class="card">
+        <details id="expenseSearchDetails">
+          <summary>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div>
+                <h3 style="margin:0;">Search Expenses</h3>
+                <div class="hint" style="margin-top:2px;">Click to expand search and filters.</div>
+              </div>
+              <div class="btn btn-ghost btn-sm" style="margin-top:0;">Toggle</div>
+            </div>
+          </summary>
+
+          <div class="grid-3" style="margin-top:10px;">
+            <div>
+              <label style="margin-top:0;">Search</label>
+              <input id="expenseSearch" placeholder="home depot, tile, fuel..." />
+            </div>
+            <div>
+              <label style="margin-top:0;">Client</label>
+              <select id="expenseFilterClient">
+                <option value="">All clients</option>
+              </select>
+            </div>
+            <div>
+              <label style="margin-top:0;">Category</label>
+              <select id="expenseFilterCategory">
+                <option value="">All categories</option>
+                <option value="Materials">Materials</option>
+                <option value="Labor">Labor</option>
+                <option value="Subcontractor">Subcontractor</option>
+                <option value="Dumpster">Dumpster</option>
+                <option value="Permits/Fees">Permits/Fees</option>
+                <option value="Fuel/Travel">Fuel/Travel</option>
+                <option value="Tools/Equipment">Tools/Equipment</option>
+                <option value="Other">Other</option>
+                <option value="Receipt">Receipt</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button id="clearExpenseFiltersBtn" class="btn btn-secondary" type="button">Clear Filters</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px;">Expense Feed</h3>
+
+        <div class="table-wrap">
+          <table style="min-width:920px;">
+            <thead>
+              <tr>
+                <th style="min-width:110px;">Date</th>
+                <th style="min-width:220px;">Client</th>
+                <th style="min-width:140px;">Category</th>
+                <th>Vendor / Description</th>
+                <th class="right" style="min-width:120px;">Amount</th>
+                <th style="width:210px;"></th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody"></tbody>
+          </table>
+        </div>
+        <div id="expensesCount" class="hint" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- BUSINESS PAGE -->
+    <div id="businessPage" style="display:none;">
+      <h2>Business</h2>
+
+      <div class="grid-4">
+        <div class="stat">
+          <p class="label">YTD Revenue (Invoices)</p>
+          <p class="value" id="bizYtdRevenue">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">YTD Expenses</p>
+          <p class="value" id="bizYtdExpenses">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">YTD Profit</p>
+          <p class="value" id="bizYtdProfit">$0.00</p>
+        </div>
+        <div class="stat">
+          <p class="label">Avg Profit %</p>
+          <p class="value" id="bizAvgProfitPct">-</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h3 style="margin:0;">Monthly Profit</h3>
+            <div class="hint">Click the chart to zoom.</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" type="button" id="bizRange6m">Last 6 months</button>
+            <button class="btn btn-secondary btn-sm" type="button" id="bizRange12m">Last 12 months</button>
+          </div>
+        </div>
+        <canvas id="monthlyProfitChart" height="160" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Expense Breakdown (Pie)</h3>
+        <div class="hint" style="margin-top:0;">Click the pie to zoom.</div>
+        <canvas id="expensePieChart" height="220" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Profit by Client (Top 8)</h3>
+        <div class="hint" style="margin-top:0;">Click the chart to zoom.</div>
+        <canvas id="profitByClientChart" height="160" style="width:100%; margin-top:10px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Expense Drilldown</h3>
+
+        <div class="grid-3" style="margin-top:10px;">
+          <div>
+            <label style="margin-top:0;">Category</label>
+            <select id="bizCategory">
+              <option value="">All</option>
+              <option value="Materials">Materials</option>
+              <option value="Labor">Labor</option>
+              <option value="Subcontractor">Subcontractor</option>
+              <option value="Dumpster">Dumpster</option>
+              <option value="Permits/Fees">Permits/Fees</option>
+              <option value="Fuel/Travel">Fuel/Travel</option>
+              <option value="Tools/Equipment">Tools/Equipment</option>
+              <option value="Other">Other</option>
+              <option value="Receipt">Receipt</option>
+            </select>
+          </div>
+          <div>
+            <label style="margin-top:0;">Time</label>
+            <select id="bizTime">
+              <option value="ytd">Year to date</option>
+              <option value="mtd">This month</option>
+              <option value="qtd">This quarter</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+          <div>
+            <label style="margin-top:0;">Search</label>
+            <input id="bizSearch" placeholder="home depot, tile..." />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table style="min-width:860px;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th class="right">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="bizListBody"></tbody>
+          </table>
+        </div>
+        <div id="bizListHint" class="hint" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart zoom modal -->
+  <div class="modal-backdrop" id="chartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="font-weight:800;" id="modalTitle">Chart</div>
+        <button class="btn btn-secondary btn-sm" type="button" id="closeModalBtn">Close</button>
+      </div>
+      <canvas id="modalCanvas" height="420" style="width:100%;"></canvas>
+    </div>
+  </div>
+
+  <!-- External dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="js/constants.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/invoicing.js"></script>
+  <script src="js/printing.js"></script>
+  <script src="js/expenses.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

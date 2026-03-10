@@ -869,15 +869,11 @@
     }
 
     function persistAll(){
-      // If a user is signed in, persist to Firestore; otherwise use localStorage
+      // Persist to localStorage
       try{
-        if (window.currentUserUid && window.saveAllToFirestore){
-          window.saveAllToFirestore(window.currentUserUid).catch(function(e){ console.error('saveAllToFirestore error', e); });
-        } else {
-          localStorage.setItem(LS_INVOICES, JSON.stringify(invoices));
-          localStorage.setItem(LS_EXPENSES, JSON.stringify(expenses));
-          localStorage.setItem(LS_CAT_SORT, document.getElementById("catSortMode").value);
-        }
+        localStorage.setItem(LS_INVOICES, JSON.stringify(invoices));
+        localStorage.setItem(LS_EXPENSES, JSON.stringify(expenses));
+        localStorage.setItem(LS_CAT_SORT, document.getElementById("catSortMode").value);
       }catch(e){
         console.error('persistAll error', e);
       }
@@ -2374,163 +2370,10 @@ try{
     init();
   })();
   </script>
-  <!-- Auth modal (full-screen overlay) -->
-  <style>
-    .auth-modal{ position:fixed; inset:0; display:none; z-index:9999; font-family:system-ui, -apple-system, sans-serif; }
-    .auth-modal.open{ display:block; }
-    .auth-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,0.45); }
-    .auth-panel{ position:relative; width:min(540px,92%); max-height:92%; margin:3% auto; background:#fff; border-radius:12px; padding:20px; box-shadow:0 10px 30px rgba(2,6,23,0.2); overflow:auto; }
-    .auth-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .auth-title{ font-weight:700; font-size:1.1rem; }
-    .auth-row{ margin-bottom:10px; }
-    .auth-input{ width:100%; padding:10px; border:1px solid #e6e6e6; border-radius:8px; }
-    .auth-actions{ display:flex; gap:8px; margin-top:8px; }
-    #authToggleBtn{ position:fixed; right:12px; top:12px; z-index:9998; }
-  </style>
 
-  <button id="authToggleBtn" class="btn">Account</button>
-
-  <div id="authModal" class="auth-modal" aria-hidden="true">
-    <div class="auth-backdrop" onclick="closeAuthModal()"></div>
-    <div class="auth-panel" role="dialog" aria-modal="true">
-      <div class="auth-header">
-        <div class="auth-title">Account</div>
-        <button id="authCloseBtn" class="btn">Close</button>
-      </div>
-
-      <div id="authSignedOut">
-        <div class="auth-row"><input id="authEmail" class="auth-input" type="email" placeholder="Email address" /></div>
-        <div class="auth-row"><input id="authPass" class="auth-input" type="password" placeholder="Password" /></div>
-        <div class="auth-actions">
-          <button id="authSignIn" class="btn btn-primary">Sign in</button>
-          <button id="authSignUp" class="btn">Create account</button>
-        </div>
-        <div style="margin-top:10px;color:#666;font-size:0.9rem;">Signing up creates a protected account that stores your invoices in Firestore.</div>
-      </div>
-
-      <div id="authSignedIn" style="display:none;">
-        <div style="margin-bottom:8px;font-size:0.95rem;">Signed in as <strong id="authUser"></strong></div>
-        <div class="auth-actions"><button id="authSignOut" class="btn btn-secondary">Sign out</button></div>
-      </div>
-    </div>
-  </div>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getFirestore, collection, setDoc, doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBC06lWwean-PlUSK-8VWpWRNxdrYCEYGU",
-    authDomain: "invoice-app-a11c7.firebaseapp.com",
-    projectId: "invoice-app-a11c7",
-    storageBucket: "invoice-app-a11c7.firebasestorage.app",
-    messagingSenderId: "878729931866",
-    appId: "1:878729931866:web:9ca4f3425ed8dd8bd23c63",
-    measurementId: "G-WQND1MNB3F"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  window.currentUserUid = null;
-
-  function openAuthModal(){ document.getElementById('authModal').classList.add('open'); document.getElementById('authModal').setAttribute('aria-hidden','false'); }
-  function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); document.getElementById('authModal').setAttribute('aria-hidden','true'); }
-
-  document.getElementById('authToggleBtn').addEventListener('click', openAuthModal);
-  document.getElementById('authCloseBtn').addEventListener('click', closeAuthModal);
-
-  // Helper: load user's invoices/expenses from Firestore into app state
-  async function loadUserData(uid){
-    try{
-      const invSnap = await getDocs(collection(db, "users", uid, "invoices"));
-      const expSnap = await getDocs(collection(db, "users", uid, "expenses"));
-      const invs = invSnap.docs.map(d => Object.assign({}, d.data(), { id: d.id }));
-      const exps = expSnap.docs.map(d => Object.assign({}, d.data(), { id: d.id }));
-
-      if (invs.length || exps.length){
-        invoices = invs;
-        expenses = exps;
-        try{ persistAll(); }catch(e){}
-        renderDocList(); renderExpensesTable(); renderClientsPage(); renderBusinessPage();
-        return;
-      }
-
-      // If Firestore empty, migrate any localStorage data
-      var localInv = JSON.parse(localStorage.getItem(LS_INVOICES) || "[]");
-      var localExp = JSON.parse(localStorage.getItem(LS_EXPENSES) || "[]");
-      if (Array.isArray(localInv) && localInv.length){
-        invoices = localInv;
-        expenses = Array.isArray(localExp) ? localExp : [];
-        await saveAllToFirestore(uid);
-        try{ localStorage.removeItem(LS_INVOICES); localStorage.removeItem(LS_EXPENSES); }catch(e){}
-        renderDocList(); renderExpensesTable(); renderClientsPage(); renderBusinessPage();
-      }
-    }catch(e){ console.error('loadUserData', e); }
-  }
-
-  // Save all app arrays to Firestore (overwrite sync)
-  window.saveAllToFirestore = async function(uid){
-    try{
-      // invoices
-      const invCol = collection(db, "users", uid, "invoices");
-      const curInvSnap = await getDocs(invCol);
-      const curInvIds = new Set(curInvSnap.docs.map(d => d.id));
-      const desiredInvIds = new Set(invoices.map(i => String(i.id)));
-      // delete removed
-      for (const id of curInvIds){ if (!desiredInvIds.has(id)) await deleteDoc(doc(db, "users", uid, "invoices", id)); }
-      // set current
-      for (const it of invoices){ const id = String(it.id || Date.now()); await setDoc(doc(db, "users", uid, "invoices", id), it); }
-
-      // expenses
-      const expCol = collection(db, "users", uid, "expenses");
-      const curExpSnap = await getDocs(expCol);
-      const curExpIds = new Set(curExpSnap.docs.map(d => d.id));
-      const desiredExpIds = new Set(expenses.map(e => String(e.id)));
-      for (const id of curExpIds){ if (!desiredExpIds.has(id)) await deleteDoc(doc(db, "users", uid, "expenses", id)); }
-      for (const ex of expenses){ const id = String(ex.id || Date.now()); await setDoc(doc(db, "users", uid, "expenses", id), ex); }
-    }catch(e){ console.error('saveAllToFirestore', e); throw e; }
-  };
-
-  onAuthStateChanged(auth, async user => {
-    if (user){
-      window.currentUserUid = user.uid;
-      // update UI
-      var signedOut = document.getElementById('authSignedOut');
-      var signedIn = document.getElementById('authSignedIn');
-      var userEl = document.getElementById('authUser');
-      if (signedOut) signedOut.style.display = 'none';
-      if (signedIn){ signedIn.style.display = 'block'; userEl.textContent = (user.email || 'Signed in'); }
-      await loadUserData(user.uid);
-    } else {
-      window.currentUserUid = null;
-      var signedOut = document.getElementById('authSignedOut');
-      var signedIn = document.getElementById('authSignedIn');
-      if (signedOut) signedOut.style.display = 'block';
-      if (signedIn) signedIn.style.display = 'none';
-      console.log('Signed out');
-    }
-  });
-
-  // simple helpers
-  window.signUp = async (email, pw) => (await createUserWithEmailAndPassword(auth, email, pw)).user;
-  window.signIn = async (email, pw) => (await signInWithEmailAndPassword(auth, email, pw)).user;
-  window.signOutUser = async () => await signOut(auth);
-
-  // Wire auth UI buttons
-  document.getElementById('authSignIn').addEventListener('click', async function(){
-    var e = document.getElementById('authEmail').value || '';
-    var p = document.getElementById('authPass').value || '';
-    try{ await window.signIn(e,p); closeAuthModal(); }catch(err){ alert('Sign-in failed: ' + (err.message || err)); }
-  });
-  document.getElementById('authSignUp').addEventListener('click', async function(){
-    var e = document.getElementById('authEmail').value || '';
-    var p = document.getElementById('authPass').value || '';
-    try{ await window.signUp(e,p); alert('Account created. Check your email if verification is required.'); closeAuthModal(); }catch(err){ alert('Sign-up failed: ' + (err.message || err)); }
-  });
-  document.getElementById('authSignOut').addEventListener('click', async function(){ try{ await window.signOutUser(); }catch(e){ console.error(e); } });
   </script>
 </body>
 </html>
