@@ -3,7 +3,6 @@ const CACHE_NAME = 'remodelpro-invoice-v2';
 const ASSETS = [
   './',
   'index.html',
-  'invoice.html',
   'styles.css',
   'js/constants.js',
   'js/utils.js',
