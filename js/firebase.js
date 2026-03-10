@@ -138,12 +138,10 @@
     if (!started){
       started = true;
       startFirebaseMode();
+      syncAll(user).catch(function(e){
+        console.error("Initial sync failed:", e);
+      });
     }
-    if (syncInProgress) return;
-    showAuthLoading("Signed in. Syncing your data...");
-    syncAll(user).catch(function(e){
-      showAuthError("Sync failed. " + (e.message || ""));
-    });
   }
 
   function updateUserDisplay(user){
@@ -348,31 +346,27 @@
       startLocalMode();
     });
 
-    function onSignInEnter(e){
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      signInBtn.click();
+    var authForm = document.getElementById("authForm");
+    if (authForm){
+      authForm.addEventListener("submit", async function(e){
+        e.preventDefault();
+        clearAuthMessages();
+        if (!navigator.onLine){
+          return showAuthError("You appear to be offline. Connect to the internet and try again.");
+        }
+        var email = (emailEl.value || "").trim();
+        var pass = passEl.value || "";
+        if (!email || !pass) return showAuthError("Email and password are required.");
+        try{
+          showAuthLoading("Signing you in...");
+          await auth.signInWithEmailAndPassword(email, pass);
+          clearAuthMessages();
+          hideAuthGate();
+        }catch(e){
+          showAuthError(e.message || "Sign in failed.");
+        }
+      });
     }
-
-    if (emailEl) emailEl.addEventListener("keydown", onSignInEnter);
-    if (passEl) passEl.addEventListener("keydown", onSignInEnter);
-
-    signInBtn.addEventListener("click", async function(){
-      clearAuthMessages();
-      if (!navigator.onLine){
-        return showAuthError("You appear to be offline. Connect to the internet and try again.");
-      }
-      var email = (emailEl.value || "").trim();
-      var pass = passEl.value || "";
-      if (!email || !pass) return showAuthError("Email and password are required.");
-      try{
-        showAuthLoading("Signing you in...");
-        var cred = await auth.signInWithEmailAndPassword(email, pass);
-        handleSignedIn(cred && cred.user);
-      }catch(e){
-        showAuthError(e.message || "Sign in failed.");
-      }
-    });
 
     createBtn.addEventListener("click", async function(){
       clearAuthMessages();
@@ -384,9 +378,9 @@
       if (!email || !pass) return showAuthError("Email and password are required.");
       try{
         showAuthLoading("Creating your account...");
-        var cred = await auth.createUserWithEmailAndPassword(email, pass);
-        showAuthSuccess("Account created. Signing you in...");
-        handleSignedIn(cred && cred.user);
+        await auth.createUserWithEmailAndPassword(email, pass);
+        clearAuthMessages();
+        hideAuthGate();
       }catch(e){
         showAuthError(e.message || "Account creation failed.");
       }

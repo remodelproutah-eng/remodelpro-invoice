@@ -33,16 +33,18 @@
 
         <div class="auth-title">Sign in</div>
 
-        <label for="authEmail">Email</label>
-        <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+        <form id="authForm" autocomplete="on">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" />
 
-        <label for="authPassword">Password</label>
-        <input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+          <label for="authPassword">Password</label>
+          <input id="authPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
 
-        <div class="auth-actions">
-          <button class="btn btn-primary" id="authSignInBtn" type="button">Sign in</button>
-          <button class="btn btn-secondary create-account-btn" id="authCreateBtn" type="button">Create account</button>
-        </div>
+          <div class="auth-actions">
+            <button class="btn btn-primary" id="authSignInBtn" type="submit">Sign in</button>
+            <button class="btn btn-secondary create-account-btn" id="authCreateBtn" type="button">Create account</button>
+          </div>
+        </form>
 
         <button class="auth-skip" id="authSkipBtn" type="button" title="Change will be saved to local storage and synced next time you login from this device.">Work offline</button>
       </div>
@@ -498,5 +500,16 @@
   <script src="js/reports.js"></script>
   <script src="js/app.js"></script>
   <script src="js/firebase.js"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+          .then(function(reg) { console.log('Service Worker registered:', reg.scope); })
+          .catch(function(err) { console.error('Service Worker registration failed:', err); });
+      });
+    }
+  </script>
 </body>
 </html>

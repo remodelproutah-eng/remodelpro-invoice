@@ -2,7 +2,7 @@
   "name": "RemodelPRO Invoicing",
   "short_name": "RemodelPRO",
   "description": "Invoices & estimates for RemodelPRO Home Remodeling.",
-  "start_url": "invoice.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#111827",
