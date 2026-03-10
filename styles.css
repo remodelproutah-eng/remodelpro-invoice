@@ -15,6 +15,108 @@ body{
   box-shadow:0 10px 24px rgba(0,0,0,0.08);
 }
 
+.auth-gate{
+  position:fixed; inset:0; z-index:1000;
+  background:#ffffff;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  flex-direction: column;
+}
+.auth-gate.hidden{ display:none; }
+.auth-gate:not(.hidden) + .app{ visibility:hidden; }
+.auth-shell{ width:100%; display:flex; flex-direction:column; align-items:center; }
+.auth-pending{
+  position:absolute; inset:0;
+  display:none; align-items:center; justify-content:center;
+  flex-direction:column; gap:10px;
+}
+.auth-gate.is-pending .auth-shell{ display:none; }
+.auth-gate.is-pending .auth-pending{ display:flex; }
+.auth-pending-text{ font-size:0.95rem; font-weight:600; color:#111827; }
+.auth-card{
+  width:100%; max-width:420px;
+  background:#fff; border-radius:16px;
+  padding:20px; border:1px solid #e5e7eb;
+  box-shadow:0 16px 32px rgba(0,0,0,0.12);
+}
+.auth-brand{
+  display:flex; align-items:center;
+}
+.auth-logo{
+  width:auto; height:140px;
+  object-fit:contain;
+}
+.auth-brand-name{
+  font-family:"Montserrat",system-ui,sans-serif;
+  font-size:1.1rem; font-weight:800; letter-spacing:0.02em;
+}
+.auth-brand-sub{
+  font-size:0.85rem; color:#555;
+}
+.auth-title{ font-size:1.4rem; font-weight:800; }
+.auth-sub{ color:#555; font-size:0.95rem; margin:4px 0 10px; } 
+.auth-actions{ display:flex; flex-direction:column; gap:10px; margin-top: 10px; }
+.auth-actions .btn{ width:100%; }
+.create-account-btn.btn {
+    margin-top: 0;
+}
+.auth-feedback-slot{
+  width:100%;
+  max-width:420px;
+  min-height:42px;
+  position:relative;
+  margin-top:10px;
+}
+.auth-error,
+.auth-success,
+.auth-loading{
+  position:absolute;
+  top:0; left:0; right:0;
+  border-radius:10px; font-size:0.9rem;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 300ms ease, visibility 0ms linear 300ms;
+}
+.auth-error{
+  padding:8px 10px;
+  background:#fff3f3; border:1px solid #f5c2c2; color:#9a1c1c;
+}
+.auth-success{
+  padding:8px 10px;
+  background:#f1fbf4; border:1px solid #bfe8c9; color:#146a2e;
+}
+.auth-loading{
+  padding:8px 10px;
+  background:#f8fafc; border:1px solid #dbe4f0; color:#1f2937;
+  display:flex; align-items:center; gap:8px;
+}
+.auth-error.is-visible,
+.auth-success.is-visible,
+.auth-loading.is-visible{
+  opacity:1;
+  visibility:visible;
+  transition:opacity 300ms ease;
+}
+.auth-spinner{
+  width:14px; height:14px;
+  border:2px solid #c7d2fe;
+  border-top-color:#111827;
+  border-radius:50%;
+  animation:authSpin 0.8s linear infinite;
+}
+.auth-spinner-lg{
+  width:26px; height:26px;
+  border-width:3px;
+}
+@keyframes authSpin{
+  to { transform:rotate(360deg); }
+}
+.auth-skip{
+  margin-top:12px; background:none; border:none; color:#111827;
+  text-decoration:underline; cursor:pointer; font-size:0.9rem;
+  width:100%; text-align:center;
+}
+
 .top-nav{
   display:flex;
   align-items:center;
@@ -54,6 +156,23 @@ body{
 .menu button:hover{ background:#f3f4f6; border-color:#eee; }
 .menu button.active:hover{ background:#111827; color:#fff; border-color:transparent; }
 .menu .active{ background:#111827; color:#fff; }
+
+.user-menu-wrap{ position:relative; }
+.user-btn{
+  padding:6px 12px; border-radius:999px;
+  border:1px solid #eee; background:#fafafa;
+  font-size:0.85rem; color:#444; cursor:pointer;
+  white-space:nowrap; display:flex; align-items:center; gap:6px;
+}
+.user-btn:hover{ background:#f3f4f6; border-color:#ddd; }
+.user-menu{
+  position:absolute; top:42px; right:0; width:200px;
+  background:#fff; border:1px solid #e5e7eb; border-radius:14px;
+  box-shadow:0 14px 28px rgba(0,0,0,0.12);
+  padding:8px; display:none; z-index:50;
+}
+.user-menu.open{ display:block; }
+.user-menu button{ width:100%; text-align:left; }
 
 .pill{
   padding:6px 10px; border-radius:999px;
@@ -158,7 +277,7 @@ td{ padding:8px; border-bottom:1px solid #eee; vertical-align:top; }
   transform:translateX(-50%);
   width:100%;
   height:130%;
-  background-image:url('logo.png');
+  background-image:url('assets/logo.png');
   background-repeat:no-repeat;
   background-position:center 35%;
   background-size:90%;

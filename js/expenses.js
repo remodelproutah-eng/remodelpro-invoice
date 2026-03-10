@@ -95,6 +95,8 @@ function addExpenseFromForm(e){
 
   expenses.push({
     id: Date.now(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
     client: String(client),
     date: date,
     category: cat,
@@ -146,6 +148,7 @@ function renderExpensesTable(){
       return (tb - ta) || (b.id - a.id);
     })
     .filter(function(x){
+      if (x.deletedAt) return false;
       if (filterClient && String(x.client) !== String(filterClient)) return false;
       if (filterCat && String(x.category) !== String(filterCat)) return false;
       if (q && !String(x.description||"").toLowerCase().includes(q)) return false;
@@ -193,6 +196,8 @@ function renderExpensesTable(){
         ex.category = category;
         ex.description = description;
         ex.amount = amount;
+        ex.updatedAt = Date.now();
+        if (!ex.createdAt) ex.createdAt = ex.updatedAt;
 
         persistAll();
         editingExpenseId = null;
@@ -219,7 +224,10 @@ function renderExpensesTable(){
       tr.querySelector("[data-action='del']").addEventListener("click", function(){
         if (!confirm("Delete this expense?")) return;
         var idx = expenses.findIndex(x => x.id === ex.id);
-        if (idx !== -1) expenses.splice(idx, 1);
+        if (idx !== -1){
+          if (typeof markExpenseDeleted === "function") markExpenseDeleted(ex.id);
+          expenses.splice(idx, 1);
+        }
         persistAll();
         renderExpensesTable();
       });

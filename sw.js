@@ -2,9 +2,9 @@
 const CACHE_NAME = 'remodelpro-invoice-v1';
 const ASSETS = [
   'invoice.html',
-  'logo.png',
-  'icon-192.png',
-  'icon-512.png',
+  'assets/logo.png',
+  'assets/web-app-manifest-192x192.png',
+  'assets/web-app-manifest-512x512.png',
   'manifest.webmanifest'
 ];
 

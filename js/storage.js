@@ -5,10 +5,48 @@
 // Exported state containers
 let invoices = [];
 let expenses = [];
+let deletedInvoiceMap = {};
+let deletedExpenseMap = {};
+
+function normalizeDeletedMap(val){
+  if (!val || typeof val !== "object" || Array.isArray(val)) return {};
+  return val;
+}
+
+function markInvoiceDeleted(id){
+  deletedInvoiceMap[String(id)] = Date.now();
+}
+
+function markExpenseDeleted(id){
+  deletedExpenseMap[String(id)] = Date.now();
+}
+
+function getDeletedInvoiceMap(){ return deletedInvoiceMap; }
+function getDeletedExpenseMap(){ return deletedExpenseMap; }
+
+function generateId(){
+  return Date.now() + Math.floor(Math.random() * 1000);
+}
+
+function ensureIdsAndTimestamps(){
+  var now = Date.now();
+  invoices.forEach(function(d){
+    if (d.id == null) d.id = generateId();
+    if (!d.createdAt) d.createdAt = now;
+    if (!d.updatedAt) d.updatedAt = d.createdAt;
+  });
+  expenses.forEach(function(e){
+    if (e.id == null) e.id = generateId();
+    if (!e.createdAt) e.createdAt = now;
+    if (!e.updatedAt) e.updatedAt = e.createdAt;
+  });
+}
 
 function loadAll(){
   invoices = JSON.parse(localStorage.getItem(LS_INVOICES) || "[]");
   expenses = JSON.parse(localStorage.getItem(LS_EXPENSES) || "[]");
+  deletedInvoiceMap = normalizeDeletedMap(JSON.parse(localStorage.getItem(LS_DELETED_INVOICES) || "{}"));
+  deletedExpenseMap = normalizeDeletedMap(JSON.parse(localStorage.getItem(LS_DELETED_EXPENSES) || "{}"));
   if (!Array.isArray(invoices)) invoices = [];
   if (!Array.isArray(expenses)) expenses = [];
 
@@ -40,6 +78,13 @@ function loadAll(){
     copy.client = clientGuess || "";
     return copy;
   });
+
+  var deletedInvoices = new Set(Object.keys(deletedInvoiceMap || {}));
+  var deletedExpenses = new Set(Object.keys(deletedExpenseMap || {}));
+  invoices = invoices.filter(function(d){ return !deletedInvoices.has(String(d.id)); });
+  expenses = expenses.filter(function(e){ return !deletedExpenses.has(String(e.id)); });
+
+  ensureIdsAndTimestamps();
 }
 
 function persistAll(){
@@ -47,6 +92,9 @@ function persistAll(){
     localStorage.setItem(LS_INVOICES, JSON.stringify(invoices));
     localStorage.setItem(LS_EXPENSES, JSON.stringify(expenses));
     localStorage.setItem(LS_CAT_SORT, document.getElementById("catSortMode").value);
+    localStorage.setItem(LS_DELETED_INVOICES, JSON.stringify(deletedInvoiceMap));
+    localStorage.setItem(LS_DELETED_EXPENSES, JSON.stringify(deletedExpenseMap));
+    if (window.onLocalDataChanged && !window.suppressLocalSync) window.onLocalDataChanged();
   }catch(e){
     console.error('persistAll error', e);
   }

@@ -4,6 +4,8 @@ const LS_EXPENSES = "rp_expenses";
 const LS_CAT_SORT = "rp_cat_sort_mode";
 const LS_DEFAULT_TAB = "rp_default_tab";
 const LS_LAST_CLIENT = "rp_last_client";
+const LS_DELETED_INVOICES = "rp_deleted_invoices";
+const LS_DELETED_EXPENSES = "rp_deleted_expenses";
 
 // Work categories
 const CATEGORIES = [

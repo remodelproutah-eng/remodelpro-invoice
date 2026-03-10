@@ -135,9 +135,13 @@ function saveDoc(){
   }
 
   var total = computeTotals(items).total;
+  var existing = currentId ? invoices.find(function(d){ return d.id === currentId; }) : null;
+  var createdAt = existing && existing.createdAt ? existing.createdAt : Date.now();
 
   var data = {
     id: currentId || Date.now(),
+    createdAt: createdAt,
+    updatedAt: Date.now(),
     type: type,
     name: name,
     phone: phone || "",
@@ -260,7 +264,7 @@ function buildPrintHeaderHTML(){
     +       "Email: RemodelProUtah@gmail.com"
     +     "</div>"
     +   "</div>"
-    +   "<img src='logo.png' alt='Logo' style='width:2.5in;height:auto;object-fit:contain;'>"
+    +   "<img src='assets/logo.png' alt='Logo' style='width:2.5in;height:auto;object-fit:contain;'>"
     + "</header>"
     + "<div style='height:2px;background:#ff9a00;margin:10px 0 16px;border-radius:999px;'></div>";
 }
@@ -439,6 +443,7 @@ function renderDocList(){
     .slice()
     .sort(function(a,b){ return b.id - a.id; })
     .filter(function(d){
+      if (d.deletedAt) return false;
       if (!q) return true;
       return (
         String(d.name||"").toLowerCase().includes(q) ||
@@ -489,7 +494,10 @@ function renderDocList(){
     card.querySelector("[data-action='del']").addEventListener("click", function(){
       if (!confirm("Delete this document?")) return;
       var idx = invoices.findIndex(x => x.id === d.id);
-      if (idx !== -1) invoices.splice(idx, 1);
+      if (idx !== -1){
+        if (typeof markInvoiceDeleted === "function") markInvoiceDeleted(d.id);
+        invoices.splice(idx, 1);
+      }
       if (currentId === d.id) currentId = null;
       persistAll();
       renderDocList();

@@ -251,8 +251,9 @@ function wireEvents(){
 }
 
 // Initialize app
-function init(){
-  loadAll();
+function init(options){
+  var opts = options || {};
+  if (!opts.skipLoad) loadAll();
 
   document.getElementById("invoiceDate").value = todayISO();
   document.getElementById("expenseDate").value = todayISO();
@@ -272,9 +273,12 @@ function init(){
   showPage(tab);
 }
 
-// Start when DOM is ready
-if (document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+function startApp(options){
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ init(options); }, { once: true });
+  } else {
+    init(options);
+  }
 }
+
+window.startApp = startApp;
