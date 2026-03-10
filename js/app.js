@@ -2,14 +2,14 @@
  * App initialization and event wiring
  */
 
+var selectedClient = "";
+
 // Clients page rendering with drill-down details
 function renderClientsPage(){
   var list = document.getElementById("clientsList");
   var empty = document.getElementById("clientsEmpty");
   var q = (document.getElementById("clientSearch").value || "").trim().toLowerCase();
   var clients = getClientsFromData().filter(function(c){ return !q || c.toLowerCase().includes(q); });
-
-  var selectedClient = "";
 
   list.innerHTML = "";
   empty.style.display = clients.length ? "none" : "block";

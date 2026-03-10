@@ -29,6 +29,13 @@ function showPage(page){
 
   localStorage.setItem(LS_DEFAULT_TAB, page);
   setActiveMenu(page);
+
+  if (page === "business" && typeof renderBusinessPage === "function"){
+    // Canvas charts need a visible container to compute width correctly.
+    requestAnimationFrame(function(){
+      renderBusinessPage();
+    });
+  }
 }
 
 function toggleMenu(open){
@@ -38,12 +45,19 @@ function toggleMenu(open){
 }
 
 function wireNav(){
-  document.getElementById("hamburgerBtn").addEventListener("click", function(e){
+  if (window.__rpNavWired) return;
+  window.__rpNavWired = true;
+
+  var hamburgerBtn = document.getElementById("hamburgerBtn");
+  var navMenu = document.getElementById("navMenu");
+  if (!hamburgerBtn || !navMenu) return;
+
+  hamburgerBtn.addEventListener("click", function(e){
     e.stopPropagation();
     toggleMenu();
   });
 
-  document.getElementById("navMenu").addEventListener("click", function(e){
+  navMenu.addEventListener("click", function(e){
     var btn = e.target.closest("button[data-page]");
     if (!btn) return;
     var page = btn.getAttribute("data-page");

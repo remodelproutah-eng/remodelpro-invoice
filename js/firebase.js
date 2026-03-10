@@ -132,6 +132,12 @@
     if (window.startApp) window.startApp({ skipLoad: true });
   }
 
+  function showSignInScreen(){
+    setAuthPending(false);
+    clearAuthMessages();
+    authGate.classList.remove("hidden");
+  }
+
   function handleSignedIn(user){
     if (!user) return;
     updateUserDisplay(user);
@@ -153,11 +159,17 @@
     if (user && user.email){
       userDisplay.textContent = user.email;
       if (userIcon) userIcon.style.display = "block";
-      if (logoutBtn) logoutBtn.style.display = "block";
+      if (logoutBtn){
+        logoutBtn.textContent = "Logout";
+        logoutBtn.style.display = "block";
+      }
     } else {
-      userDisplay.textContent = "Local Mode";
+      userDisplay.textContent = "Offline Mode";
       if (userIcon) userIcon.style.display = "none";
-      if (logoutBtn) logoutBtn.style.display = "none";
+      if (logoutBtn){
+        logoutBtn.textContent = "Sign in";
+        logoutBtn.style.display = "block";
+      }
     }
   }
 
@@ -180,7 +192,9 @@
           auth.signOut().catch(function(e){
             console.error("Logout error:", e);
           });
+          return;
         }
+        showSignInScreen();
       });
     }
 

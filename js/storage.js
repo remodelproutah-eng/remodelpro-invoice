@@ -94,6 +94,7 @@ function persistAll(){
     localStorage.setItem(LS_CAT_SORT, document.getElementById("catSortMode").value);
     localStorage.setItem(LS_DELETED_INVOICES, JSON.stringify(deletedInvoiceMap));
     localStorage.setItem(LS_DELETED_EXPENSES, JSON.stringify(deletedExpenseMap));
+    if (typeof refreshClientDropdowns === "function") refreshClientDropdowns();
     if (window.onLocalDataChanged && !window.suppressLocalSync) window.onLocalDataChanged();
   }catch(e){
     console.error('persistAll error', e);

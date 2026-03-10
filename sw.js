@@ -1,5 +1,5 @@
 // Very simple offline cache for the app shell
-const CACHE_NAME = 'remodelpro-invoice-v2';
+const CACHE_NAME = 'remodelpro-invoice-v7';
 const ASSETS = [
   './',
   'index.html',
