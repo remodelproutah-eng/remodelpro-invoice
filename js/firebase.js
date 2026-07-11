@@ -15,14 +15,15 @@
   var errorEl = document.getElementById("authError");
   var successEl = document.getElementById("authSuccess");
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC0f4AgX-kheklssjoYg4b9pnQTw22Vvgg",
-    authDomain: "remodelpro-cae45.firebaseapp.com",
-    projectId: "remodelpro-cae45",
-    storageBucket: "remodelpro-cae45.firebasestorage.app",
-    messagingSenderId: "18322359876",
-    appId: "1:18322359876:web:8b557fc60d194ac8cd5e11"
-  };
+ const firebaseConfig = {
+  apiKey: "AIzaSyCF8rI1JAk4YMBadmIYrP8q_FzoSoIUxxs",
+  authDomain: "inovoice-app-16737.firebaseapp.com",
+  projectId: "inovoice-app-16737",
+  storageBucket: "inovoice-app-16737.firebasestorage.app",
+  messagingSenderId: "469454307180",
+  appId: "1:469454307180:web:12186d063e3e18f1117d49",
+  measurementId: "G-1Q6W0GKSG9"
+};
 
   var auth = null;
   var db = null;
